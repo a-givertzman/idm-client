@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
-
+//
+//
 import 'package:idm_client/domain/point/point.dart';
+import 'package:idm_client/infrostructure/device_stream/message.dart';
 import 'package:yaml/yaml.dart';
 
 /// Class `Connection` - manages the socket connection
@@ -12,61 +14,48 @@ import 'package:yaml/yaml.dart';
 /// - `port` - port of the server
 class Connection {
   final _controller = StreamController<Point>();
-  late final Socket _socket;
+  late final Socket socket;
   final String addr;
   final int port;
-
+  late final Message _message;
   Connection({
     required this.addr,
     this.port = 1234,
   }) {
     _initSocket();
+    _message = Message(this);
   }
 
   /// Stream of event coming from the connection line
   Stream<Point> get stream => _controller.stream;
-
+  //
+  //
   void _initSocket() async {
     try {
-      _socket = await Socket.connect(addr, port);
-      _socket.listen(_handleData, onError: _handleError, onDone: _handleDone);
+      socket = await Socket.connect(addr, port);
+      socket.listen(_message.handleData,
+          onError: _handleError, onDone: _handleDone);
     } catch (e) {
       print('Error connecting to server: $e');
     }
   }
 
-  void _handleData(Uint8List data) {
-    String message = String.fromCharCodes(data).trim();
-    var yaml = loadYaml(message);
-
-    for (var deviceId in yaml.keys) {
-      var deviceData = yaml[deviceId];
-      if (deviceData != null && deviceData is YamlMap) {
-        var value = (deviceData['value'] as num).toDouble();
-        var type = deviceData['type'];
-        var status = deviceData['status'];
-        var timestamp = deviceData['timestamp'];
-
-        _controller.add(Point<double>(
-          type: type,
-          value: value,
-          status: status,
-          timestamp: timestamp,
-        ));
-      }
-    }
-  }
-
+  //
+  //
   void _handleError(error) {
     print('Error: $error');
   }
 
+  //
+  //
   void _handleDone() {
     print('Connection closed');
   }
 
+  //
+  //
   void close() {
-    _socket.close();
+    socket.close();
     _controller.close();
   }
 }

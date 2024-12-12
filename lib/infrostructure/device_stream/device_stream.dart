@@ -1,5 +1,6 @@
 import 'dart:async';
-
+//
+//
 import 'package:idm_client/domain/point/point.dart';
 import 'package:idm_client/infrostructure/device_stream/connection.dart';
 
@@ -20,7 +21,7 @@ class DeviceStream {
   /// Returns a stream of points for a given subscription name. Creates a new stream if one doesn't exist.
   Stream<Point> stream(String name) {
     if (!_subscriptions.containsKey(name)) {
-      _subscriptions[name] = StreamController<Point>();
+      _subscriptions[name] = StreamController<Point>.broadcast();
     }
     return _subscriptions[name]!.stream;
   }
@@ -29,7 +30,9 @@ class DeviceStream {
   /// Listening events from the connection
   void _listenConnection() {
     _connection.stream.listen((event) {
-      for (var controller in _subscriptions.values) {
+      final name = event.name;
+      final controller = _subscriptions[name];
+      if (controller != null) {
         controller.add(event);
       }
     });
