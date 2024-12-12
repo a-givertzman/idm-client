@@ -6,7 +6,6 @@ import 'dart:typed_data';
 import 'package:idm_client/domain/point/point.dart';
 import 'package:idm_client/infrostructure/device_stream/message.dart';
 import 'package:yaml/yaml.dart';
-
 /// Class `Connection` - manages the socket connection
 /// - `_controller` - StreamController to manage the stream of Point objects
 /// - `_socket` - socket object representing the network connection to the server
@@ -25,7 +24,6 @@ class Connection {
     _initSocket();
     _message = Message(this);
   }
-
   /// Stream of event coming from the connection line
   Stream<Point> get stream => _controller.stream;
   //
@@ -39,19 +37,16 @@ class Connection {
       print('Error connecting to server: $e');
     }
   }
-
   //
   //
   void _handleError(error) {
     print('Error: $error');
   }
-
   //
   //
   void _handleDone() {
     print('Connection closed');
   }
-
   //
   //
   void close() {

@@ -6,24 +6,20 @@ import 'package:flutter/material.dart';
 import 'package:idm_client/domain/point/point.dart';
 import 'package:idm_client/infrostructure/device_stream/connection.dart';
 import 'package:yaml/yaml.dart';
-
 ///
 /// - Converting Stream<List<int>> into Stream<Point>
 /// - Sends Point converting it into List<int>
 class Message {
   final Connection connection;
   final _controller = StreamController<Point>();
-
   ///
   /// - connection - Socket connection
   Message(this.connection);
-
   ///
   /// Incoming stream of Point's
   Stream<Point> stream() {
     return _controller.stream;
   }
-
   ///
   /// Sends Point
   void add(Point point) {
@@ -31,7 +27,6 @@ class Message {
     Uint8List bytes = convertToBytes(point);
     connection.socket.add(bytes);
   }
-
   //
   //
   Uint8List convertToBytes(Point point) {
@@ -44,7 +39,6 @@ class Message {
     ''';
     return Uint8List.fromList(yaml.codeUnits);
   }
-
   //
   //
   void handleData(Uint8List data) {
