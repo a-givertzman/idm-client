@@ -6,19 +6,19 @@ import 'package:flutter/material.dart';
 import 'package:idm_client/domain/point/point.dart';
 import 'package:idm_client/infrostructure/device_stream/connection.dart';
 import 'package:yaml/yaml.dart';
+import 'package:hmi_core/hmi_core_result.dart';
 ///
 /// - Converting Stream<List<int>> into Stream<Point>
 /// - Sends Point converting it into List<int>
 class Message {
   final Connection connection;
-  final _controller = StreamController<Point>();
   ///
   /// - connection - Socket connection
   Message(this.connection);
   ///
   /// Incoming stream of Point's
   Stream<Point> stream() {
-    return _controller.stream;
+    return connection.stream; //.map((bytes) => bytes as List<int>);
   }
   ///
   /// Sends Point
@@ -41,8 +41,8 @@ class Message {
   }
   //
   //
-  void handleData(Uint8List data) {
-    String message = String.fromCharCodes(data).trim();
+  Result<Point, Err> parse(List<int> bytes) {
+    String message = String.fromCharCodes(bytes).trim();
     var yaml = loadYaml(message);
     for (var deviceId in yaml.keys) {
       var deviceData = yaml[deviceId];
@@ -51,14 +51,16 @@ class Message {
         var type = deviceData['type'];
         var status = deviceData['status'];
         var timestamp = deviceData['timestamp'];
-        _controller.add(Point<double>(
+        Point point = Point<double>(
           name: deviceId,
           type: type,
           value: value,
           status: status,
           timestamp: timestamp,
-        ));
+        );
+        return Ok(point);
       }
     }
+    return Err(Err('Parsing error'));
   }
 }

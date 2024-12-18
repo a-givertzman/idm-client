@@ -31,7 +31,7 @@ class Connection {
   void _initSocket() async {
     try {
       socket = await Socket.connect(addr, port);
-      socket.listen(_message.handleData,
+      socket.listen(_message,
           onError: _handleError, onDone: _handleDone);
     } catch (e) {
       print('Error connecting to server: $e');
