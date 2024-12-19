@@ -35,7 +35,7 @@ class DeviceStream {
     });
   }
   ///
-  /// Closes all subscriptions
+  /// Releases all resources
   void close() {
     _connection.close();
     for (var controller in _subscriptions.values) {
