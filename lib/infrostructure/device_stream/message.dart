@@ -1,66 +1,100 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
-//
-//
-import 'package:flutter/material.dart';
+import 'package:hmi_core/hmi_core_log.dart';
+import 'package:idm_client/domain/error/failure.dart';
 import 'package:idm_client/domain/point/point.dart';
-import 'package:idm_client/infrostructure/device_stream/connection.dart';
-import 'package:yaml/yaml.dart';
+import 'package:idm_client/domain/point/point_status.dart';
+import 'package:idm_client/domain/point/point_type.dart';
 import 'package:hmi_core/hmi_core_result.dart';
 ///
 /// - Converting Stream<List<int>> into Stream<Point>
 /// - Sends Point converting it into List<int>
 class Message {
-  final Connection connection;
+  final _log = const Log("Message");
+  final Socket _socket;
+  final StreamController<Point> _controller = StreamController.broadcast();
+  bool _started = false;
   ///
   /// - connection - Socket connection
-  Message(this.connection);
+  Message({required Socket socket}): _socket = socket;
   ///
   /// Incoming stream of Point's
-  Stream<Point> stream() {
-    return connection.stream; //.map((bytes) => bytes as List<int>);
+  Stream<Point> get stream {
+    if (!_started) {
+      _started = true;
+      _socket.listen(
+        (bytes) {
+          switch (_parse(bytes)) {
+            case Ok<Point, Failure>(value: final point):
+              _controller.add(point);
+            case Err<Point, Failure>(: final error):
+              _log.warn('.stream.listen | Error: $error');
+          }
+        },
+        onDone: () {
+          _log.debug('.stream.listen.onDone | Done');
+          
+        },
+        onError: (err) {
+          _log.warn('.stream.listen.onError | Error: $err');
+        }
+      );
+    }
+    return _controller.stream;
   }
   ///
   /// Sends Point
   void add(Point point) {
-    // Convert Point to YAML, then to bytes
-    Uint8List bytes = convertToBytes(point);
-    connection.socket.add(bytes);
+    Uint8List bytes = _toBytes(point);
+    _socket.add(bytes);
   }
-  //
-  //
-  Uint8List convertToBytes(Point point) {
-    String yaml = '''
-    ${point.name}:
-    type: ${point.type}
-    value: ${point.value}
-    status: ${point.status}
-    timestamp: ${point.timestamp}
-    ''';
-    return Uint8List.fromList(yaml.codeUnits);
+  ///
+  /// Convert Point to JSON, then to bytes
+  Uint8List _toBytes(Point point) {
+    final map = {
+      'name': point.name,
+      'type': point.type.toStr(),
+      'value': point.value,
+      'status': point.status.toInt(),
+      'timestamp': point.timestamp,
+    };
+    final jsonVal = json.encode(map);
+    return utf8.encode(jsonVal);
   }
-  //
-  //
-  Result<Point, Err> parse(List<int> bytes) {
-    String message = String.fromCharCodes(bytes).trim();
-    var yaml = loadYaml(message);
-    for (var deviceId in yaml.keys) {
-      var deviceData = yaml[deviceId];
-      if (deviceData != null && deviceData is YamlMap) {
-        var value = (deviceData['value'] as num).toDouble();
-        var type = deviceData['type'];
-        var status = deviceData['status'];
-        var timestamp = deviceData['timestamp'];
-        Point point = Point<double>(
-          name: deviceId,
-          type: type,
-          value: value,
-          status: status,
-          timestamp: timestamp,
-        );
-        return Ok(point);
-      }
+  ///
+  /// 
+  Result<Point, Failure> _parse(List<int> bytes) {
+    try {
+      String message = String.fromCharCodes(bytes).trim();
+      final jsonVal = json.decode(message);
+      final name = jsonVal['name'];
+      final type = PointType.fromStr(jsonVal['type']);
+      final value = switch (type) {
+        PointType.bool => jsonVal['value'],
+        PointType.int => jsonVal['value'],
+        PointType.real => jsonVal['value'],
+        PointType.double => jsonVal['value'],
+        PointType.string => jsonVal['value'],
+      };
+      var status = Status.fromInt(jsonVal['status']);
+      var timestamp = jsonVal['timestamp'];
+      return Ok(Point<double>(
+        name: name,
+        type: type,
+        value: value,
+        status: status,
+        timestamp: timestamp,
+      ));
+    } catch (err) {
+      return Err(Failure('Message.parse | Parsing error: $err'));
     }
-    return Err(Err('Parsing error'));
+  }
+  ///
+  /// Reases all resources
+  void close() async {
+    await _socket.close();
+    await _controller.close();
   }
 }
