@@ -36,7 +36,8 @@ class DeviceStream {
   }
   ///
   /// Closes all subscriptions
-  void dispose() {
+  void close() {
+    _connection.close();
     for (var controller in _subscriptions.values) {
       controller.close();
     }
