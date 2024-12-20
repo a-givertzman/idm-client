@@ -38,6 +38,7 @@ void main() {
           srvSubscription = srvSocket.listen((bytes) {
             log.debug('.srvSocket.listen | bytes: $bytes');
             if (bytes == [00]) {
+              log.debug('.srvSocket.listen | Exit...');
               srvSubscription?.cancel();
               srvSocket.close();
             }
@@ -47,7 +48,9 @@ void main() {
         onError: (err) {
           log.warn('.srvSocket.listen | Error: $err');
         }
-      );
+      ).whenComplete(() {
+        log.debug('.srvSocket.listen | Exit - Ok');
+      });
       await Future.delayed(const Duration(milliseconds: 300));
       for (final (step, bytes) in testData) {
         connect.add(bytes);
