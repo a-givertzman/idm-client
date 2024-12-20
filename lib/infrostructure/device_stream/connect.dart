@@ -77,9 +77,11 @@ class Connect {
     );
     _log.info('._listen | Exit');
   }
+  ///
+  /// Sends accumulated buffer
   void _sendBuffer() {
     try {
-      while (_buffer.isNotEmpty || !_close) {
+      while (_buffer.isNotEmpty && !_close) {
         final bytes = _buffer.removeAt(0);
         _socket?.add(bytes);
       }
