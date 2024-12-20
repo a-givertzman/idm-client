@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 import 'package:hmi_core/hmi_core_log.dart';
 import 'package:idm_client/domain/error/failure.dart';
@@ -8,23 +7,24 @@ import 'package:idm_client/domain/point/point.dart';
 import 'package:idm_client/domain/point/point_status.dart';
 import 'package:idm_client/domain/point/point_type.dart';
 import 'package:hmi_core/hmi_core_result.dart';
+import 'package:idm_client/infrostructure/device_stream/connect.dart';
 ///
 /// - Converting Stream<List<int>> into Stream<Point>
 /// - Sends Point converting it into List<int>
 class Message {
   final _log = const Log("Message");
-  final Socket _socket;
-  final StreamController<Point> _controller = StreamController.broadcast();
-  bool _started = false;
+  final Connect _connect;
+  final StreamController<Point> _controller = StreamController();
+  bool _isStarted = false;
   ///
   /// - connection - Socket connection
-  Message({required Socket socket}): _socket = socket;
+  Message({required Connect connect}): _connect = connect;
   ///
   /// Incoming stream of Point's
   Stream<Point> get stream {
-    if (!_started) {
-      _started = true;
-      _socket.listen(
+    if (!_isStarted) {
+      _isStarted = true;
+      _connect.stream.listen(
         (bytes) {
           switch (_parse(bytes)) {
             case Ok<Point, Failure>(value: final point):
@@ -48,7 +48,7 @@ class Message {
   /// Sends Point
   void add(Point point) {
     Uint8List bytes = _toBytes(point);
-    _socket.add(bytes);
+    _connect.add(bytes);
   }
   ///
   /// Convert Point to JSON, then to bytes
@@ -93,8 +93,8 @@ class Message {
   }
   ///
   /// Reases all resources
-  void close() async {
-    await _socket.close();
+  Future<void> close() async {
+    await _connect.close();
     await _controller.close();
   }
 }

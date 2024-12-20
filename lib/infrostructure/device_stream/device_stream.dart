@@ -1,17 +1,17 @@
 import 'dart:async';
-//
-//
+import 'package:hmi_core/hmi_core_log.dart';
 import 'package:idm_client/domain/point/point.dart';
-import 'package:idm_client/infrostructure/device_stream/connection.dart';
+import 'package:idm_client/infrostructure/device_stream/message.dart';
 /// Class `DeviceStream` - device info provider
 /// - `_connection` - connection to server
 /// - `_subscriptions` - subscriptions on certain device
 class DeviceStream {
-  final Connection _connection;
+  final _log = const Log("DeviceStream");
+  final Message _message;
   final Map<String, StreamController<Point>> _subscriptions = {};
   DeviceStream({
-    required Connection connection,
-  }) : _connection = connection {
+    required Message message,
+  }) : _message = message {
     _listenConnection();
   }
   ///
@@ -26,18 +26,29 @@ class DeviceStream {
   ///
   /// Listening events from the connection
   void _listenConnection() {
-    _connection.stream.listen((event) {
-      final name = event.name;
-      final controller = _subscriptions[name];
-      if (controller != null) {
-        controller.add(event);
-      }
-    });
+    _message.stream.listen(
+      (event) {
+        final name = event.name;
+        final controller = _subscriptions[name];
+        if (controller != null) {
+          controller.add(event);
+        }
+      },
+      onDone: () async {
+        _log.warn('._listenConnection.listen | Done');
+        _message.close();
+        await Future.delayed(const Duration(milliseconds: 100));
+        _listenConnection();
+      },
+      onError: (err) {
+        _log.warn('._listenConnection.listen | Connection error: $err');
+      },
+    );
   }
   ///
   /// Releases all resources
   void close() {
-    _connection.close();
+    _message.close();
     for (var controller in _subscriptions.values) {
       controller.close();
     }
