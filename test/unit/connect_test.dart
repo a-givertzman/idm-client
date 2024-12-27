@@ -68,6 +68,8 @@ void main() {
       await Future.delayed(const Duration(milliseconds: 300));
       for (final (step, bytes) in testData) {
         connect.add(bytes);
+        // required for splitting the individual messages
+        connect.flush();
         log.debug('.test | step: $step,  sent bytes: $bytes');
       }
       final received = [];
