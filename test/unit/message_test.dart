@@ -57,8 +57,8 @@ void main() {
           received++;
           srvSocket.add(bytes);
           srvSocket.flush();
-          await Future.delayed(const Duration(milliseconds: 1000));
           if (received >= testData.length) {
+            await Future.delayed(const Duration(milliseconds: 1000));
             log.warn('.srvSocket.listen | Exit...');
             srvSubscription?.cancel();
             srvSocket.close();
