@@ -31,30 +31,27 @@ void main() {
         port: port,
       );
       final message = Message(connect: connect);
-      final point1 = Point<double>(
-        name: "Device1",
-        type: PointType.int,
-        value: 25,
-        status: Status.ok,
-        timestamp: "2024-12-26T12:00:00Z",
-      );
-      final point2 = Point<double>(
-        name: "Device2",
-        type: PointType.int,
-        value: 20,
-        status: Status.ok,
-        timestamp: "2024-12-26T14:30:00Z",
-      );
+      Point buildPoint<T>(String name, PointType type, value) {
+        return Point<T>(
+          name: name,
+          type: type,
+          value: value,
+          status: Status.ok,
+          timestamp: "2024-12-26T12:00:00Z",
+        );
+      }
       final List<(int, Point)> testData = [
-        (00, point1),
-        // (01, point2),
-        //(03, point1),
+        (01, buildPoint('Device01', PointType.int, 101)),
+        (02, buildPoint('Device02', PointType.double, 102.02)),
+        (03, buildPoint('Device03', PointType.double, 103.033)),
+        (04, buildPoint('Device04', PointType.string, '104.04')),
       ];
       final server = await ServerSocket.bind(addr, port);
       StreamSubscription<Bytes>? srvSubscription;
       server.first.then((srvSocket) {
+        srvSocket.setOption(SocketOption.tcpNoDelay, true);
         log.debug('.server.first | srvSocket: $srvSocket');
-        srvSubscription = srvSocket.listen((bytes) {
+        srvSubscription = srvSocket.listen((bytes) async {
           log.debug('.srvSocket.listen | bytes: $bytes');
           if (bytes == [125]) {
             log.warn('.srvSocket.listen | Exit...');
@@ -62,6 +59,8 @@ void main() {
             srvSocket.close();
           }
           srvSocket.add(bytes);
+          srvSocket.flush();
+          await Future.delayed(const Duration(milliseconds: 1000));
         });
       }, onError: (err) {
         log.warn('.srvSocket.listen | Error: $err');
@@ -71,6 +70,8 @@ void main() {
       await Future.delayed(const Duration(milliseconds: 300));
       for (final (step, event) in testData) {
         message.add(event);
+        message.flush();
+        await Future.delayed(const Duration(milliseconds: 1000));
         log.debug('.test | step: $step,  sent event: $event');
       }
       final received = <Point>[];

@@ -44,6 +44,7 @@ class Connect {
         try {
           _log.info('._connect | Connecting to: $_addr:$_port...');
           final socket = await Socket.connect(_addr, _port);
+          socket.setOption(SocketOption.tcpNoDelay, true);
           _log.info('._connect | Connecting to: $_addr:$_port - Ok');
           _socket = socket;
           _sendBuffer();
@@ -101,13 +102,6 @@ class Connect {
     }
   }
   ///
-  /// Releases all resources
-  Future<void> close() async {
-    _close = true;
-    await _socket?.close();
-    await _controller.close();
-  }
-  ///
   /// Returns a [Future] that completes once all buffered data is accepted by the underlying [StreamConsumer].
   /// 
   /// This method must not be called while an [addStream] is incomplete.
@@ -115,5 +109,12 @@ class Connect {
   /// NOTE: This is not necessarily the same as the data being flushed by the operating system.
   Future flush() {
     return _socket?.flush() ?? Future.value();
+  }
+  ///
+  /// Releases all resources
+  Future<void> close() async {
+    _close = true;
+    await _socket?.close();
+    await _controller.close();
   }
 }
