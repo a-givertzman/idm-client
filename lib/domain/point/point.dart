@@ -23,4 +23,9 @@ class Point<T> {
     required this.status,
     required this.timestamp,
   });
+
+  @override
+  String toString() {
+    return 'Point(name: $name, type: $type, value: $value, status: $status, timestamp: $timestamp)';
+  }
 }
