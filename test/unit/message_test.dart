@@ -49,18 +49,20 @@ void main() {
       final server = await ServerSocket.bind(addr, port);
       StreamSubscription<Bytes>? srvSubscription;
       server.first.then((srvSocket) {
+        int received = 0;
         srvSocket.setOption(SocketOption.tcpNoDelay, true);
         log.debug('.server.first | srvSocket: $srvSocket');
         srvSubscription = srvSocket.listen((bytes) async {
           log.debug('.srvSocket.listen | bytes: $bytes');
-          if (bytes == [125]) {
+          received++;
+          srvSocket.add(bytes);
+          srvSocket.flush();
+          await Future.delayed(const Duration(milliseconds: 1000));
+          if (received >= testData.length) {
             log.warn('.srvSocket.listen | Exit...');
             srvSubscription?.cancel();
             srvSocket.close();
           }
-          srvSocket.add(bytes);
-          srvSocket.flush();
-          await Future.delayed(const Duration(milliseconds: 1000));
         });
       }, onError: (err) {
         log.warn('.srvSocket.listen | Error: $err');
