@@ -39,7 +39,10 @@ dependencies:
     git:
       url: https://github.com/a-givertzman/hmi_core.git
       ref: 2.1.4
-
+  ext_rw:
+    git:
+      url: https://github.com/a-givertzman/dart_ext_rw.git
+      ref: 1.2.2
 
 dev_dependencies:
   flutter_test:

@@ -2,12 +2,25 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:hmi_core/hmi_core_log.dart';
+import 'package:hmi_core/hmi_core_option.dart';
 import 'package:idm_client/domain/error/failure.dart';
 import 'package:idm_client/domain/point/point.dart';
 import 'package:idm_client/domain/point/point_status.dart';
 import 'package:idm_client/domain/point/point_type.dart';
 import 'package:hmi_core/hmi_core_result.dart';
+import 'package:idm_client/domain/types/bytes.dart';
 import 'package:idm_client/infrostructure/device_stream/connect.dart';
+import 'package:ext_rw/src/api_client/message/field_id.dart';
+import 'package:ext_rw/src/api_client/message/field_kind.dart';
+import 'package:ext_rw/src/api_client/message/field_syn.dart';
+import 'package:ext_rw/src/api_client/message/field_size.dart';
+import 'package:ext_rw/src/api_client/message/field_data.dart';
+import 'package:ext_rw/src/api_client/message/message_build.dart';
+import 'package:ext_rw/src/api_client/message/parse_data.dart';
+import 'package:ext_rw/src/api_client/message/parse_id.dart';
+import 'package:ext_rw/src/api_client/message/parse_kind.dart';
+import 'package:ext_rw/src/api_client/message/parse_size.dart';
+import 'package:ext_rw/src/api_client/message/parse_syn.dart';
 ///
 /// - Converting Stream<List<int>> into Stream<Point>
 /// - Sends Point converting it into List<int>
@@ -16,6 +29,16 @@ class Message {
   final Connect _connect;
   final StreamController<Point> _controller = StreamController();
   bool _isStarted = false;
+  int _message_id = 0;
+  late StreamSubscription? _subscription;
+  final MessageBuild _messageBuild = MessageBuild(
+    syn: FieldSyn.def(),
+    id: FieldId.def(),
+    kind: FieldKind.bytes,
+    size: FieldSize.def(),
+    data: FieldData([]),
+  );
+
   ///
   /// - connection - Socket connection
   Message({required Connect connect}): _connect = connect;
@@ -24,13 +47,37 @@ class Message {
   Stream<Point> get stream {
     if (!_isStarted) {
       _isStarted = true;
-      _connect.stream.listen(
-        (bytes) {
-          switch (_parse(bytes)) {
-            case Ok<Point, Failure>(value: final point):
-              _controller.add(point);
-            case Err<Point, Failure>(: final error):
-              _log.warn('.stream.listen | Error: $error');
+      final message = ParseData(
+        field: ParseSize(
+          size: FieldSize.def(),
+          field: ParseKind(
+            field: ParseId(
+            id: FieldId.def(),
+              field: ParseSyn.def(),
+            ),
+          ),
+        ),
+      );
+      _subscription =_connect.stream.listen(
+        (Bytes bytes) {
+          // _log.debug('.listen.onData | Event: $event');
+          Bytes? input = bytes;
+          bool isSome = true;
+          while (isSome) {
+            switch (message.parse(input)) {
+              case Some<(FieldId, FieldKind, FieldSize, Bytes)>(value: (final id, final kind, final _, final bytes)):
+                // _log.debug('.listen.onData | id: $id,  kind: $kind,  size: $size, bytes: ${bytes.length > 16 ? bytes.sublist(0, 16) : bytes}');
+                switch (_parse(bytes)) {
+                  case Ok<Point, Failure>(value: final point):
+                    _controller.add(point);
+                  case Err<Point, Failure>(: final error):
+                    _log.warn('.stream.listen | Error: $error');
+                }
+                input = null;
+              case None():
+                isSome = false;
+                // _log.debug('.listen.onData | None');
+            }
           }
         },
         onDone: () {
@@ -48,7 +95,11 @@ class Message {
   /// Sends Point
   void add(Point point) {
     Uint8List bytes = _toBytes(point);
-    _connect.add(bytes);
+    // _log.debug('.add | id: $id,  bytes: ${bytes.length > 16 ? bytes.sublist(0, 16) : bytes}');
+    _message_id++;
+    _connect.add(
+      _messageBuild.build(bytes, id: _message_id)
+    );
   }
   ///
   /// Convert Point to JSON, then to bytes
