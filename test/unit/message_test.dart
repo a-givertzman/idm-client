@@ -35,7 +35,7 @@ void main() {
   const log = Log('Test:Message');
   group('MessageBuild.build', () {
     test('.build()', () async {
-      final (addr, port) = ('127.0.0.1', 1238);
+      final (addr, port) = ('127.0.0.1', 1237);
       Connect connect = Connect(
         addr: addr,
         port: port,
@@ -94,7 +94,7 @@ void main() {
                   final reply = messageBuild.build(bytes, id: id.id);
                   received++;
                   srvSocket.add(reply);
-                  srvSocket.flush();
+                  // srvSocket.flush();
                   if (received >= testData.length) {
                     await Future.delayed(const Duration(milliseconds: 1000));
                     log.warn('.srvSocket.listen | Exit...');
@@ -127,7 +127,6 @@ void main() {
       await for (final event in message.stream) {
         received.add(event);
         log.debug('.test | received events $event');
-
         if (received.length >= testData.length) {
           log.debug('.listen | received: $received');
           connect.close();
@@ -135,17 +134,17 @@ void main() {
           break;
         }
       }
-      // void compare(Point expected, Point actual) {
-      //   expect(actual.name, equals(expected.name));
-      //   expect(actual.type, equals(expected.type));
-      //   expect(actual.value, equals(expected.value));
-      //   expect(actual.status, equals(expected.status));
-      //   expect(actual.timestamp, equals(expected.timestamp));
-      // }
+      void compare(dynamic step, Point expected, Point actual) {
+        expect(actual.name, equals(expected.name), reason: 'step: $step, \nresult: ${actual.name} \ntarget: ${expected.name}');
+        expect(actual.type, equals(expected.type), reason: 'step: $step, \nresult: ${actual.type} \ntarget: ${expected.type}');
+        expect(actual.value, equals(expected.value), reason: 'step: $step, \nresult: ${actual.value} \ntarget: ${expected.value}');
+        expect(actual.status, equals(expected.status), reason: 'step: $step, \nresult: ${actual.status} \ntarget: ${expected.status}');
+        expect(actual.timestamp, equals(expected.timestamp), reason: 'step: $step, \nresult: ${actual.timestamp} \ntarget: ${expected.timestamp}');
+      }
 
-      // for (int i = 0; i < received.length; i++) {
-      //   compare(testData[i].$2, received[i]);
-      // }
+      for (int i = 0; i < received.length; i++) {
+        compare(i, testData[i].$2, received[i]);
+      }
       log.debug('.test | Done');
       // expect(
       //   listEquals(result, target),

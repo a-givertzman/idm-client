@@ -29,7 +29,7 @@ class Message {
   final Connect _connect;
   final StreamController<Point> _controller = StreamController();
   bool _isStarted = false;
-  int _message_id = 0;
+  int _messageId = 0;
   late StreamSubscription? _subscription;
   final MessageBuild _messageBuild = MessageBuild(
     syn: FieldSyn.def(),
@@ -80,9 +80,10 @@ class Message {
             }
           }
         },
-        onDone: () {
+        onDone: () async {
           _log.debug('.stream.listen.onDone | Done');
-          
+          await _subscription?.cancel();
+          await _connect.close();
         },
         onError: (err) {
           _log.warn('.stream.listen.onError | Error: $err');
@@ -96,9 +97,9 @@ class Message {
   void add(Point point) {
     Uint8List bytes = _toBytes(point);
     // _log.debug('.add | id: $id,  bytes: ${bytes.length > 16 ? bytes.sublist(0, 16) : bytes}');
-    _message_id++;
+    _messageId++;
     _connect.add(
-      _messageBuild.build(bytes, id: _message_id)
+      _messageBuild.build(bytes, id: _messageId)
     );
   }
   ///
@@ -131,7 +132,7 @@ class Message {
       };
       var status = Status.fromInt(jsonVal['status']);
       var timestamp = jsonVal['timestamp'];
-      return Ok(Point<double>(
+      return Ok(Point(
         name: name,
         type: type,
         value: value,
@@ -154,6 +155,7 @@ class Message {
   ///
   /// Reases all resources
   Future<void> close() async {
+    await _subscription?.cancel();
     await _connect.close();
     await _controller.close();
   }

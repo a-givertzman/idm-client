@@ -52,6 +52,7 @@ class Connect {
           break;
         } catch (err) {
           _log.warn('._connect.listen | Connecting error: $err');
+          await Future.delayed(const Duration(seconds: 3));
         }
       }
     });

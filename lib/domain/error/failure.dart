@@ -6,4 +6,10 @@ class Failure {
   ///
   /// Creates Failure new instance
   Failure(this.message, {this.child});
+  //
+  //
+  @override
+  String toString() {
+    return 'Failure: $message \n\t↳$child';
+  }
 }
