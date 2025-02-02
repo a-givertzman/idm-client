@@ -1,5 +1,5 @@
 ///
-/// Stauses of the [Point]
+/// Enum `Status` - contains statuses of the [Point]
 enum Status {
   ok,
   invalid;
@@ -16,7 +16,7 @@ enum Status {
     }
   }
   ///
-  /// Returns string representation ov variant
+  /// Returns numerous representation of variant
   int toInt() {
     return switch (this) {
       Status.ok => 0,
