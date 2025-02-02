@@ -1,5 +1,5 @@
 ///
-/// Specifies a type of the [Point] value
+/// Enum `PointType` - contains specified types of the [Point] value
 enum PointType {
   bool,
   int,
@@ -24,6 +24,8 @@ enum PointType {
         return PointType.string;
     }
   }
+  ///
+  /// Returns string representation of type
   String toStr() {
     return switch (this) {
       PointType.bool => 'bool',
