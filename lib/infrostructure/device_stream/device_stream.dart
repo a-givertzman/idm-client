@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:hmi_core/hmi_core_log.dart';
 import 'package:idm_client/domain/point/point.dart';
 import 'package:idm_client/infrostructure/device_stream/message.dart';
+///
 /// Class `DeviceStream` - device info provider
 /// - `_message` - sent message on certain device
 class DeviceStream {
@@ -9,6 +10,7 @@ class DeviceStream {
   final Message _message;
   // - `_subscriptions` - subscriptions on certain device
   final Map<String, StreamController<Point>> _subscriptions = {};
+  ///
   /// Creates [DeviceStream] new instance
   /// - `_message` - variable to get events from device
   DeviceStream({
