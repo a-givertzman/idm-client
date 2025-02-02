@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:hmi_core/hmi_core_log.dart';
 import 'package:idm_client/domain/types/bytes.dart';
+///
 /// Infinit trys to connect socket, yields event from socket via `stream` getter
 /// - `addr` - addres of the server
 /// - `port` - port of the server
@@ -18,6 +19,7 @@ class Connect {
   final List<Bytes> _buffer = [];
   bool _isStarted = false;
   bool _close = false;
+  ///
   /// Creates [Connect] new instance
   /// - `addr` - IPV4 addres of the server
   /// - `port` - certain free port of the server
