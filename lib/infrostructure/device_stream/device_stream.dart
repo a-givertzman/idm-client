@@ -3,12 +3,14 @@ import 'package:hmi_core/hmi_core_log.dart';
 import 'package:idm_client/domain/point/point.dart';
 import 'package:idm_client/infrostructure/device_stream/message.dart';
 /// Class `DeviceStream` - device info provider
-/// - `_connection` - connection to server
-/// - `_subscriptions` - subscriptions on certain device
+/// - `_message` - sent message on certain device
 class DeviceStream {
   final _log = const Log("DeviceStream");
   final Message _message;
+  // - `_subscriptions` - subscriptions on certain device
   final Map<String, StreamController<Point>> _subscriptions = {};
+  /// Creates [DeviceStream] new instance
+  /// - `_message` - variable to get events from device
   DeviceStream({
     required Message message,
   }) : _message = message {
