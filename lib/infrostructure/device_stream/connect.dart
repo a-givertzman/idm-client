@@ -11,6 +11,7 @@ class Connect {
   Socket? _socket; 
   // - `_controller` - StreamController output stream of bytes
   final _controller = StreamController<Bytes>();
+  // - `_subscriptions` - subscriptions on certain device
   StreamSubscription<Bytes>? _subscription;
   final String _addr;
   final int _port;
@@ -18,9 +19,8 @@ class Connect {
   bool _isStarted = false;
   bool _close = false;
   /// Creates [Connect] new instance
-  /// - `_controller` - StreamController to manage the stream of Point objects
-  /// - `_socket` - socket object representing the network connection to the server
   /// - `addr` - IPV4 addres of the server
+  /// - `port` - certain free port of the server
   Connect({
     required String addr,
     int port = 1234,
