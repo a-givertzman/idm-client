@@ -22,14 +22,17 @@ import 'package:ext_rw/src/api_client/message/parse_kind.dart';
 import 'package:ext_rw/src/api_client/message/parse_size.dart';
 import 'package:ext_rw/src/api_client/message/parse_syn.dart';
 ///
-/// - Converting Stream<List<int>> into Stream<Point>
-/// - Sends Point converting it into List<int>
+/// Converts Stream<List<int>> into Stream<Point>
+/// Sends Point converting it into List<int>
+/// - `connect` - Socket connection
 class Message {
   final _log = const Log("Message");
   final Connect _connect;
+  // - '_controller` - StreamController output stream of bytes
   final StreamController<Point> _controller = StreamController();
   bool _isStarted = false;
   int _messageId = 0;
+  // - `_subscriptions` - subscriptions on certain device
   late StreamSubscription? _subscription;
   final MessageBuild _messageBuild = MessageBuild(
     syn: FieldSyn.def(),
@@ -38,9 +41,8 @@ class Message {
     size: FieldSize.def(),
     data: FieldData([]),
   );
-
-  ///
-  /// - connection - Socket connection
+  /// Creates [Message] new instance
+  /// - `connect` - Socket connection
   Message({required Connect connect}): _connect = connect;
   ///
   /// Incoming stream of Point's
@@ -115,8 +117,8 @@ class Message {
     final jsonVal = json.encode(map);
     return utf8.encode(jsonVal);
   }
-  ///
-  /// 
+  //
+  //
   Result<Point, Failure> _parse(List<int> bytes) {
     try {
       String message = String.fromCharCodes(bytes).trim();
