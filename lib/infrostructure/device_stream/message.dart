@@ -24,7 +24,7 @@ import 'package:ext_rw/src/api_client/message/parse_syn.dart';
 ///
 /// Converts Stream<List<int>> into Stream<Point>
 /// Sends Point converting it into List<int>
-/// - `connect` - Socket connection
+/// - `_connect` - Socket connection
 class Message {
   final _log = const Log("Message");
   final Connect _connect;
@@ -41,6 +41,7 @@ class Message {
     size: FieldSize.def(),
     data: FieldData([]),
   );
+  ///
   /// Creates [Message] new instance
   /// - `connect` - Socket connection
   Message({required Connect connect}): _connect = connect;
