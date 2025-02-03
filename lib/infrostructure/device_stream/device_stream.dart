@@ -3,24 +3,21 @@ import 'package:hmi_core/hmi_core_log.dart';
 import 'package:idm_client/domain/point/point.dart';
 import 'package:idm_client/infrostructure/device_stream/message.dart';
 ///
-/// Class `DeviceStream` - device info provider
-/// - `_message` - sent message on certain device
+/// Provides information of the device.
 class DeviceStream {
   final _log = const Log("DeviceStream");
   final Message _message;
   // - `_subscriptions` - subscriptions on certain device
   final Map<String, StreamController<Point>> _subscriptions = {};
   ///
-  /// Creates [DeviceStream] new instance
-  /// - `_message` - variable to get events from device
+  /// Creates a new instance of [DeviceStream] with incoming [message]
   DeviceStream({
     required Message message,
   }) : _message = message {
     _listenConnection();
   }
   ///
-  /// Stream of events coming from connection line
-  /// Returns a stream of points for a given subscription name. Creates a new stream if one doesn't exist.
+  /// Returns a stream of [Point] for a given subscription [name]. Creates a new stream if one doesn't exist.
   Stream<Point> stream(String name) {
     if (!_subscriptions.containsKey(name)) {
       _subscriptions[name] = StreamController<Point>.broadcast();
@@ -28,7 +25,7 @@ class DeviceStream {
     return _subscriptions[name]!.stream;
   }
   ///
-  /// Listening events from the connection
+  /// Listening to the events from the connection.
   void _listenConnection() {
     _message.stream.listen(
       (event) {
@@ -50,7 +47,7 @@ class DeviceStream {
     );
   }
   ///
-  /// Releases all resources
+  /// Releases all resources.
   void close() {
     _message.close();
     for (var controller in _subscriptions.values) {
