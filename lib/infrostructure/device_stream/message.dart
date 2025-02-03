@@ -22,11 +22,11 @@ import 'package:ext_rw/src/api_client/message/parse_kind.dart';
 import 'package:ext_rw/src/api_client/message/parse_size.dart';
 import 'package:ext_rw/src/api_client/message/parse_syn.dart';
 ///
-/// Converts Stream<List<int>> into Stream<Point>
-/// Sends Point converting it into List<int>
-/// - `_connect` - Socket connection
+/// Converts Stream<List<int>> into Stream<Point>.
+/// Sends [Point] converting it into List<int>.
 class Message {
   final _log = const Log("Message");
+  // - `_connect` - Socket connection
   final Connect _connect;
   // - '_controller` - StreamController output stream of bytes
   final StreamController<Point> _controller = StreamController();
@@ -42,11 +42,11 @@ class Message {
     data: FieldData([]),
   );
   ///
-  /// Creates [Message] new instance
-  /// - `connect` - Socket connection
-  Message({required Connect connect}): _connect = connect;
+  /// Creates a new insance of [Message] with established [connect].
+  Message({required Connect connect}) : _connect = connect;
   ///
-  /// Incoming stream of Point's
+  /// Stream of points coming from the connection line.
+  /// Returns a stream of [Point].
   Stream<Point> get stream {
     if (!_isStarted) {
       _isStarted = true;
@@ -55,58 +55,54 @@ class Message {
           size: FieldSize.def(),
           field: ParseKind(
             field: ParseId(
-            id: FieldId.def(),
+              id: FieldId.def(),
               field: ParseSyn.def(),
             ),
           ),
         ),
       );
-      _subscription =_connect.stream.listen(
-        (Bytes bytes) {
-          // _log.debug('.listen.onData | Event: $event');
-          Bytes? input = bytes;
-          bool isSome = true;
-          while (isSome) {
-            switch (message.parse(input)) {
-              case Some<(FieldId, FieldKind, FieldSize, Bytes)>(value: (final id, final kind, final _, final bytes)):
-                // _log.debug('.listen.onData | id: $id,  kind: $kind,  size: $size, bytes: ${bytes.length > 16 ? bytes.sublist(0, 16) : bytes}');
-                switch (_parse(bytes)) {
-                  case Ok<Point, Failure>(value: final point):
-                    _controller.add(point);
-                  case Err<Point, Failure>(: final error):
-                    _log.warn('.stream.listen | Error: $error');
-                }
-                input = null;
-              case None():
-                isSome = false;
-                // _log.debug('.listen.onData | None');
-            }
+      _subscription = _connect.stream.listen((Bytes bytes) {
+        // _log.debug('.listen.onData | Event: $event');
+        Bytes? input = bytes;
+        bool isSome = true;
+        while (isSome) {
+          switch (message.parse(input)) {
+            case Some<(FieldId, FieldKind, FieldSize, Bytes)>(
+                value: (final id, final kind, final _, final bytes)
+              ):
+              // _log.debug('.listen.onData | id: $id,  kind: $kind,  size: $size, bytes: ${bytes.length > 16 ? bytes.sublist(0, 16) : bytes}');
+              switch (_parse(bytes)) {
+                case Ok<Point, Failure>(value: final point):
+                  _controller.add(point);
+                case Err<Point, Failure>(:final error):
+                  _log.warn('.stream.listen | Error: $error');
+              }
+              input = null;
+            case None():
+              isSome = false;
+            // _log.debug('.listen.onData | None');
           }
-        },
-        onDone: () async {
-          _log.debug('.stream.listen.onDone | Done');
-          await _subscription?.cancel();
-          await _connect.close();
-        },
-        onError: (err) {
-          _log.warn('.stream.listen.onError | Error: $err');
         }
-      );
+      }, onDone: () async {
+        _log.debug('.stream.listen.onDone | Done');
+        await _subscription?.cancel();
+        await _connect.close();
+      }, onError: (err) {
+        _log.warn('.stream.listen.onError | Error: $err');
+      });
     }
     return _controller.stream;
   }
   ///
-  /// Sends Point
+  /// Sends [point] to the connection line.
   void add(Point point) {
     Uint8List bytes = _toBytes(point);
     // _log.debug('.add | id: $id,  bytes: ${bytes.length > 16 ? bytes.sublist(0, 16) : bytes}');
     _messageId++;
-    _connect.add(
-      _messageBuild.build(bytes, id: _messageId)
-    );
+    _connect.add(_messageBuild.build(bytes, id: _messageId));
   }
   ///
-  /// Convert Point to JSON, then to bytes
+  /// Converts [point] to JSON, then to bytes.
   Uint8List _toBytes(Point point) {
     final map = {
       'name': point.name,
@@ -148,15 +144,15 @@ class Message {
   }
   ///
   /// Returns a [Future] that completes once all buffered data is accepted by the underlying [StreamConsumer].
-  /// 
+  ///
   /// This method must not be called while an [addStream] is incomplete.
-  /// 
+  ///
   /// NOTE: This is not necessarily the same as the data being flushed by the operating system.
   Future flush() {
     return _connect.flush();
   }
   ///
-  /// Reases all resources
+  /// Reases all resources.
   Future<void> close() async {
     await _subscription?.cancel();
     await _connect.close();
