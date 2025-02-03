@@ -1,20 +1,25 @@
 import 'package:idm_client/domain/point/point_status.dart';
 import 'package:idm_client/domain/point/point_type.dart';
 ///
-/// Class `Point` - data unit,
-/// - `name` - name of the device
-/// - `type` - defines the type
-/// - `value` - contains value
-/// - `status` - dafines the satus
-/// - `timestamp` - defines the creation time
+/// A block of data that includes information comimg from JSON file.
 class Point<T> {
+  ///
+  /// A name of the device.
   final String name;
+  ///
+  /// A specified type of the [value].
   final PointType type;
+  ///
+  /// The received value.
   final T value;
+  ///
+  /// The status of this point.
   final Status status;
+  ///
+  /// The creation time of this point.
   final String timestamp;
   ///
-  /// Returns [Point] new instance
+  /// Creates a new instance of [Point].
   const Point({
     required this.name,
     required this.type,
@@ -23,7 +28,7 @@ class Point<T> {
     required this.timestamp,
   });
   ///
-  /// Returns string representation of class content
+  /// Returns a string representation of this point.
   @override
   String toString() {
     return 'Point(name: $name, type: $type, value: $value, status: $status, timestamp: $timestamp)';
