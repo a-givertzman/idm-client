@@ -1,5 +1,5 @@
 ///
-/// Enum `PointType` - contains specified types of the [Point] value
+/// A container for specified types of the [Point] value.
 enum PointType {
   bool,
   int,
@@ -7,25 +7,25 @@ enum PointType {
   double,
   string;
   ///
-  /// Returns PointType instance parsed from corresponding string
+  /// Returns [PointType] instance parsed from the incoming [value].
   static PointType fromStr(String value) {
     switch (value.toLowerCase()) {
       case 'bool':
-        return PointType.bool;        
+        return PointType.bool;
       case 'int':
-        return PointType.int;        
+        return PointType.int;
       case 'real':
-        return PointType.real;        
+        return PointType.real;
       case 'double':
-        return PointType.double;        
+        return PointType.double;
       case 'string':
-        return PointType.string;        
+        return PointType.string;
       default:
         return PointType.string;
     }
   }
   ///
-  /// Returns string representation of type
+  /// Returns a string representation of this type.
   String toStr() {
     return switch (this) {
       PointType.bool => 'bool',
