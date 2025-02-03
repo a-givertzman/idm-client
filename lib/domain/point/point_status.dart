@@ -1,10 +1,10 @@
 ///
-/// Enum `Status` - contains statuses of the [Point]
+/// A container for statuses of the [Point].
 enum Status {
   ok,
   invalid;
   ///
-  /// Returns PointType instance parsed from corresponding string
+  /// Returns [Status] instance parsed from the incoming [value].
   static Status fromInt(int value) {
     switch (value) {
       case 0:
@@ -16,7 +16,7 @@ enum Status {
     }
   }
   ///
-  /// Returns numerous representation of variant
+  /// Returns a numerical representation of this status.
   int toInt() {
     return switch (this) {
       Status.ok => 0,
