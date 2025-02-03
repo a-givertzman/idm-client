@@ -3,13 +3,11 @@ import 'dart:io';
 import 'package:hmi_core/hmi_core_log.dart';
 import 'package:idm_client/domain/types/bytes.dart';
 ///
-/// Infinit trys to connect socket, yields event from socket via `stream` getter
-/// - `addr` - addres of the server
-/// - `port` - port of the server
+/// Сreates a connection between the [Socket] and the [Message].
 class Connect {
   final _log = const Log("Connect");
   // - `_socket` - socket object representing the network connection to the server
-  Socket? _socket; 
+  Socket? _socket;
   // - `_controller` - StreamController output stream of bytes
   final _controller = StreamController<Bytes>();
   // - `_subscriptions` - subscriptions on certain device
@@ -20,16 +18,15 @@ class Connect {
   bool _isStarted = false;
   bool _close = false;
   ///
-  /// Creates [Connect] new instance
-  /// - `addr` - IPV4 addres of the server
-  /// - `port` - certain free port of the server
+  /// Creates a new instance of [Connect] with IPV4 [addr] and certain free [port] of the server.
   Connect({
     required String addr,
     int port = 1234,
-  }): 
-    _addr = addr,
-    _port = port;
-  /// Stream of event coming from the connection line
+  })  : _addr = addr,
+        _port = port;
+  ///
+  /// Stream of event coming from the connection line.
+  /// Returns a stream of [Bytes].
   Stream<Bytes> get stream {
     _connect();
     return _controller.stream;
@@ -61,7 +58,7 @@ class Connect {
     _log.info('._connect | Exit');
   }
   ///
-  /// Listening socket stream
+  /// Listening to the [socket] stream.
   void _listen(Socket socket) {
     _subscription = socket.listen(
       (Bytes event) {
@@ -82,7 +79,7 @@ class Connect {
     _log.info('._listen | Exit');
   }
   ///
-  /// Sends accumulated buffer
+  /// Sends accumulated buffer.
   void _sendBuffer() {
     try {
       while (_buffer.isNotEmpty && !_close) {
@@ -94,7 +91,7 @@ class Connect {
     }
   }
   ///
-  /// Sends Bytes, supports buffering if connection lost
+  /// Sends [bytes], supports buffering when connection is lost.
   void add(Bytes bytes) {
     final socket = _socket;
     if (socket == null) {
@@ -106,15 +103,15 @@ class Connect {
   }
   ///
   /// Returns a [Future] that completes once all buffered data is accepted by the underlying [StreamConsumer].
-  /// 
+  ///
   /// This method must not be called while an [addStream] is incomplete.
-  /// 
+  ///
   /// NOTE: This is not necessarily the same as the data being flushed by the operating system.
   Future flush() {
     return _socket?.flush() ?? Future.value();
   }
   ///
-  /// Releases all resources
+  /// Releases all resources.
   Future<void> close() async {
     _close = true;
     await _socket?.close();
