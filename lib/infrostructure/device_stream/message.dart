@@ -58,7 +58,7 @@ class Message {
         while (isSome) {
           switch (message.parse(input)) {
             case Some<(FieldId, FieldKind, FieldSize, Bytes)>(
-                value: (final id, final kind, final _, final bytes)
+                value: (final _, final _, final _, final bytes)
               ):
               // _log.debug('.listen.onData | id: $id,  kind: $kind,  size: $size, bytes: ${bytes.length > 16 ? bytes.sublist(0, 16) : bytes}');
               switch (_parse(bytes)) {
