@@ -10,17 +10,19 @@ import 'package:idm_client/domain/point/point_type.dart';
 import 'package:hmi_core/hmi_core_result.dart';
 import 'package:idm_client/domain/types/bytes.dart';
 import 'package:idm_client/infrostructure/device_stream/connect.dart';
-import 'package:ext_rw/src/api_client/message/field_id.dart';
-import 'package:ext_rw/src/api_client/message/field_kind.dart';
-import 'package:ext_rw/src/api_client/message/field_syn.dart';
-import 'package:ext_rw/src/api_client/message/field_size.dart';
-import 'package:ext_rw/src/api_client/message/field_data.dart';
-import 'package:ext_rw/src/api_client/message/message_build.dart';
-import 'package:ext_rw/src/api_client/message/parse_data.dart';
-import 'package:ext_rw/src/api_client/message/parse_id.dart';
-import 'package:ext_rw/src/api_client/message/parse_kind.dart';
-import 'package:ext_rw/src/api_client/message/parse_size.dart';
-import 'package:ext_rw/src/api_client/message/parse_syn.dart';
+import 'package:idm_client/api_client.dart';
+
+// import 'package:ext_rw/src/api_client/message/field_id.dart';
+// import 'package:ext_rw/src/api_client/message/field_kind.dart';
+// import 'package:ext_rw/src/api_client/message/field_syn.dart';
+// import 'package:ext_rw/src/api_client/message/field_size.dart';
+// import 'package:ext_rw/src/api_client/message/field_data.dart';
+// import 'package:ext_rw/src/api_client/message/message_build.dart';
+// import 'package:ext_rw/src/api_client/message/parse_data.dart';
+// import 'package:ext_rw/src/api_client/message/parse_id.dart';
+// import 'package:ext_rw/src/api_client/message/parse_kind.dart';
+// import 'package:ext_rw/src/api_client/message/parse_size.dart';
+// import 'package:ext_rw/src/api_client/message/parse_syn.dart';
 ///
 /// Converts Stream<List<int>> into Stream<Point>.
 /// Sends [Point] converting it into List<int>.
