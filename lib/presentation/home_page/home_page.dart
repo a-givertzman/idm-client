@@ -22,7 +22,6 @@ class _MyHomePageState extends State<HomePage> {
     initCamera();
     super.initState();
   }
-
   //
   //
   initCamera() {
@@ -41,7 +40,6 @@ class _MyHomePageState extends State<HomePage> {
     _controller.dispose();
     super.dispose();
   }
-
   //
   //
   @override
@@ -49,7 +47,24 @@ class _MyHomePageState extends State<HomePage> {
     if (!_controller.value.isInitialized) {
       return Container();
     } else {
-      return CameraPreview(_controller);
+      return Scaffold(
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            CameraPreview(_controller),
+            Center(
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.4,
+                height: MediaQuery.of(context).size.width * 0.4,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.white, width: 3),
+                  color: Colors.transparent,
+                ),
+              ),
+            )
+          ],
+        ),
+      );
     }
   }
 }
