@@ -30,10 +30,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    // _cameraController.barcodes.listen((BarcodeCapture barcodes) {
-    //   _log.warn('.initState | barcodes: $barcodes');
-    //   _detectDevice.add(barcodes);
-    // });
   }
   //
   //
@@ -46,6 +42,7 @@ class _HomePageState extends State<HomePage> {
           MobileScanner(
             controller: _cameraController,
             onDetect: (barcodes) {
+              _cameraResolution = _cameraController.cameraResolution;
               _log.warn('.MobileScanner.onDetect | barcodes: $barcodes');
               _detectDevice.add(barcodes);
             },
@@ -74,6 +71,7 @@ class _HomePageState extends State<HomePage> {
                 final devWidget = CustomPaint(
                   size: Size(constraints.maxWidth, constraints.maxHeight),
                   painter: _DevicePainter(
+                    _cameraController.cameraResolution,
                     _devices.values.toList(),
                   )
                 );
@@ -148,30 +146,42 @@ class DeviceOverviewWidget extends StatelessWidget {
 ///
 class _DevicePainter extends CustomPainter {
   final _log = const Log("DevicePainter");
+  final Size? _cameraResolution;
   final List<Device> _devices;
   ///
   ///
   _DevicePainter(
+    Size? cameraResolution,
     List<Device> devices,
-  ) : _devices = devices;
+  ):
+    _cameraResolution = cameraResolution,
+    _devices = devices;
   //
   //
   @override
   void paint(Canvas canvas, Size size) {
-    for (final dev in _devices) {
-      _log.warn('.StreamBuilder | Device Pos(${dev.pos.x}, ${dev.pos.y})  size: ${dev.size}');
-      final Rect rect = Rect.fromPoints(Offset(dev.pos.x, dev.pos.y), Offset(dev.pos.x + dev.size.width, dev.pos.y + dev.size.width));
-      canvas.drawRect(
-        rect,
-        // Paint()..shader = gradient.createShader(rect),
-        Paint()
-          ..style=PaintingStyle.stroke
-          ..color = Colors.blueAccent
-          ..strokeWidth = 3.0
-      );
-      //         title: Text('${device.id}: ${device.title}'),
-      //         subtitle: Text(device.details),
+    final cameraResolution = _cameraResolution;
+    if (cameraResolution != null) {
+      final xScale = size.width / cameraResolution.width;
+      final yScale = size.height / cameraResolution.height;
+      for (final dev in _devices) {
+        _log.warn('.StreamBuilder | Device Pos(${dev.pos.x}, ${dev.pos.y})  size: ${dev.size}');
+        final Rect rect = Rect.fromPoints(
+          Offset(dev.pos.x * xScale, dev.pos.y * yScale),
+          Offset((dev.pos.x + dev.size.width) * xScale, (dev.pos.y + dev.size.width) * yScale),
+        );
+        canvas.drawRect(
+          rect,
+          // Paint()..shader = gradient.createShader(rect),
+          Paint()
+            ..style=PaintingStyle.stroke
+            ..color = Colors.blueAccent
+            ..strokeWidth = 3.0
+        );
+        //         title: Text('${device.id}: ${device.title}'),
+        //         subtitle: Text(device.details),
 
+      }
     }
   }
   //
