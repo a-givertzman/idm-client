@@ -24,7 +24,7 @@ class _HomePageState extends State<HomePage> {
   );
   final DetectDevice _detectDevice = DetectDevice({});
   final Map<String, Device> _devices = {};
-  Size? _cameraResolution;
+  // Size? _cameraResolution;
   //
   //
   @override
@@ -42,8 +42,7 @@ class _HomePageState extends State<HomePage> {
           MobileScanner(
             controller: _cameraController,
             onDetect: (barcodes) {
-              _cameraResolution = _cameraController.cameraResolution;
-              _log.warn('.MobileScanner.onDetect | barcodes: $barcodes');
+              // _log.warn('.MobileScanner.onDetect | barcodes: $barcodes');
               _detectDevice.add(barcodes);
             },
             onDetectError: (error, stackTrace) {
@@ -65,8 +64,10 @@ class _HomePageState extends State<HomePage> {
               stream: _detectDevice.stream,
               builder: (BuildContext context, AsyncSnapshot<Device> snapshot) {
                 // _log.warn('.StreamBuilder | snapshot: $snapshot');
-                _log.warn('.StreamBuilder | Data: ${snapshot.data}');
-                _log.warn('.StreamBuilder | Error: ${snapshot.error}');
+                if (snapshot.hasError) {
+                  _log.warn('.StreamBuilder | Error: ${snapshot.error}');
+                }
+                // _log.warn('.StreamBuilder | Data: ${snapshot.data}');
                 _updateDevices(snapshot);
                 final devWidget = CustomPaint(
                   size: Size(constraints.maxWidth, constraints.maxHeight),
@@ -161,9 +162,10 @@ class _DevicePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final cameraResolution = _cameraResolution;
+    _log.warn('.StreamBuilder | cameraResolution: ${cameraResolution}');
     if (cameraResolution != null) {
-      final xScale = size.width / cameraResolution.width;
-      final yScale = size.height / cameraResolution.height;
+      final xScale = cameraResolution.width / size.width ;
+      final yScale = cameraResolution.height / size.height;
       for (final dev in _devices) {
         _log.warn('.StreamBuilder | Device Pos(${dev.pos.x}, ${dev.pos.y})  size: ${dev.size}');
         final Rect rect = Rect.fromPoints(
