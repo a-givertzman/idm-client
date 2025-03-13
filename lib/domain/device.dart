@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:idm_client/domain/pos.dart';
 
 ///
@@ -7,7 +9,7 @@ class Device {
   final String title;
   final String details;
   final Pos pos;
-  final double size;
+  final Size size;
   const Device({
     required this.id,
     required this.title,

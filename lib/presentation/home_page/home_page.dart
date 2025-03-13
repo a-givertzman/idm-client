@@ -1,10 +1,8 @@
-import 'dart:io';
-
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:hmi_core/hmi_core_log.dart';
 import 'package:idm_client/domain/detect_device/detect_device.dart';
 import 'package:idm_client/domain/device.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 //import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart';
 //import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
 // import 'package:mobile_scanner/mobile_scanner.dart';
@@ -23,59 +21,22 @@ class HomePage extends StatefulWidget {
 //
 class _HomePageState extends State<HomePage> {
   final _log = const Log("HomePage");
-  late CameraController _cameraController;
+  final MobileScannerController _cameraController = MobileScannerController(
+    detectionTimeoutMs: 1000,
+    formats: [BarcodeFormat.all],
+  );
   final DetectDevice _detectDevice = DetectDevice({});
   final Map<String, Device> _devices = {};
   Size? _cameraResolution;
-  Size? _screenSize;
   //
   //
   @override
   void initState() {
     super.initState();
-    _initializeCamera();
-  }
-  ///
-  /// Camera initialization
-  /// 
-  /// IMPORTENT !
-  /// 
-  /// If you are using the Camera plugin make sure to configure your
-  /// CameraController to only use ImageFormatGroup.nv21 for Android
-  /// and ImageFormatGroup.bgra8888 for iOS. [source](https://github.com/flutter-ml/google_ml_kit_flutter/tree/master/packages/google_mlkit_commons#creating-an-inputimage).
-  Future<void> _initializeCamera() async {
-    _log.warn('._initializeCamera | Camera init for ${Platform.operatingSystem}...');
-    final List<CameraDescription> cameras = await availableCameras();
-    final firstCamera = cameras.first;
-    _log.warn('._initializeCamera | Camera: ${firstCamera.name}');
-    _cameraController = CameraController(
-      fps: 1,
-      firstCamera,
-      ResolutionPreset.high,
-      enableAudio: false,
-      imageFormatGroup: Platform.isAndroid
-        ? ImageFormatGroup.nv21 // for Android
-        : ImageFormatGroup.bgra8888, // for iOS
-    );
-    await _cameraController.initialize();
-    _detectDevice.updateOrientation(
-      firstCamera.sensorOrientation,
-      firstCamera.lensDirection,
-      _cameraController.value.deviceOrientation,
-    );
-    _cameraController.startImageStream((image) {
-      // _log.warn('.imageStream | Image: $image');
-      _detectDevice.add(image);
+    _cameraController.barcodes.listen((BarcodeCapture barcodes) {
+      _log.warn('.initState | barcodes: $barcodes');
+      _detectDevice.add(barcodes);
     });
-    _log.warn('._initializeCamera | Done');
-    if (mounted) {
-      setState(() {
-        _cameraResolution = Size(
-          _cameraController.value.previewSize!.width,
-          _cameraController.value.previewSize!.height,
-        );
-      });
-    }
   }
   //
   //
@@ -88,18 +49,18 @@ class _HomePageState extends State<HomePage> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          CameraPreview(
-            _cameraController,
-            child: Positioned(
-              top: 100,
-              left: 100,
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(width: 5, color: Colors.deepOrange)
-                ),
-                child: Text('This is a Text widget', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.amber)),
-              )
-            ),
+          MobileScanner(
+            controller: _cameraController,
+          ),
+          Positioned(
+            top: 100,
+            left: 100,
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(width: 5, color: Colors.deepOrange)
+              ),
+              child: Text('This is a Text widget', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.amber)),
+            )
           ),
           StreamBuilder(
             stream: _detectDevice.stream,
@@ -115,11 +76,6 @@ class _HomePageState extends State<HomePage> {
                     child: ListTile(
                       title: Text('${device.id}: ${device.title}'),
                       subtitle: Text(device.details),
-                      // width: _qrRect!.width,
-                      // height: _qrRect!.height,
-                      // decoration: BoxDecoration(
-                      //   border: Border.all(color: Colors.green, width: 4),
-                      // ),
                     ),
                   );
                 }).toList(),
