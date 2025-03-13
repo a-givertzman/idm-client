@@ -22,9 +22,9 @@ class DetectDevice {
   ///
   /// Add new image for detection
   void add(BarcodeCapture event) {
-    _log.warn('.add | Barcodes: ${event.barcodes}');
+    // _log.warn('.add | Barcodes: ${event.barcodes}');
     for (Barcode barcode in event.barcodes) {
-      _log.warn('.add | Barcode: $barcode');
+      // _log.warn('.add | Barcode: $barcode');
       _log.warn('.add | Barcode.type: ${barcode.type}');
       switch (barcode.type) {
         case BarcodeType.url:
