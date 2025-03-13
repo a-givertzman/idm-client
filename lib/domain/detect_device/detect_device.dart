@@ -22,8 +22,10 @@ class DetectDevice {
   ///
   /// Add new image for detection
   void add(BarcodeCapture event) {
-    _log.warn('.add | Barcodec: ${event.barcodes}');
+    _log.warn('.add | Barcodes: ${event.barcodes}');
     for (Barcode barcode in event.barcodes) {
+      _log.warn('.add | Barcode: $barcode');
+      _log.warn('.add | Barcode.type: ${barcode.type}');
       switch (barcode.type) {
         case BarcodeType.url:
           final id = barcode.url?.url;
@@ -41,11 +43,11 @@ class DetectDevice {
               details: details
             ));
           } else {
-            _log.warn('.scan | Unknown bar-code: $barcode');
+            _log.warn('.add | Unknown bar-code: $barcode');
           }
           break;
         default:
-          _log.warn('.scan | Unknown bar-code type: ${barcode.type}');
+          _log.warn('.add | Unknown bar-code type: ${barcode.type}');
       }
     }
   }

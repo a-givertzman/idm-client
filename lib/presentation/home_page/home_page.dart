@@ -39,12 +39,9 @@ class _HomePageState extends State<HomePage> {
   //
   @override
   Widget build(BuildContext context) {
-    // if (_cameraResolution == null) {
-    //   return const Center(child: CircularProgressIndicator());
-    // }
     return Scaffold(
       body: Stack(
-        fit: StackFit.expand,
+        // fit: StackFit.expand,
         children: [
           MobileScanner(
             controller: _cameraController,
@@ -69,11 +66,13 @@ class _HomePageState extends State<HomePage> {
           StreamBuilder(
             stream: _detectDevice.stream,
             builder: (BuildContext context, AsyncSnapshot<Device> snapshot) {
-              _log.warn('._initializeCamera | snapshot: ${snapshot}');
+              // _log.warn('.StreamBuilder | snapshot: $snapshot');
+              _log.warn('.StreamBuilder | Data: ${snapshot.data}');
+              _log.warn('.StreamBuilder | Error: ${snapshot.error}');
               _updateDevices(snapshot);
               return Stack(
-                fit: StackFit.expand,
                 children: _devices.values.map((device) {
+                  _log.warn('.StreamBuilder | Device x: ${device.pos.x}  y: ${device.pos.y}');
                   return Positioned(
                     left: device.pos.x,
                     top: device.pos.y,
@@ -83,6 +82,18 @@ class _HomePageState extends State<HomePage> {
                     ),
                   );
                 }).toList(),
+                // children: [
+                //   Positioned(
+                //     top: 200,
+                //     left: 100,
+                //     child: Container(
+                //       decoration: BoxDecoration(
+                //         border: Border.all(width: 5, color: Colors.deepOrange)
+                //       ),
+                //       child: Text('This is a Text widget', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.amber)),
+                //     )
+                //   )
+                // ]
               );
             }
           ),
@@ -148,34 +159,3 @@ class DeviceOverviewWidget extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-          // if (_qrRect != null)
-          // Positioned(
-          //   left: 0,
-          //   right: 0,
-          //   bottom: 0,
-          //   child: Container(
-          //     color: Colors.black.withValues(alpha: 0.5),
-          //     padding: const EdgeInsets.all(16),
-          //     child: Text(
-          //       _qrData ?? "Scan a QR code",
-          //       style: const TextStyle(
-          //         color: Colors.white,
-          //         fontSize: 18,
-          //         fontWeight: FontWeight.bold,
-          //       ),
-          //       textAlign: TextAlign.center,
-          //     ),
-          //   ),
-          // ),
