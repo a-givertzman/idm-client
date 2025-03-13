@@ -3,9 +3,6 @@ import 'package:hmi_core/hmi_core_log.dart';
 import 'package:idm_client/domain/detect_device/detect_device.dart';
 import 'package:idm_client/domain/device.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-//import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart';
-//import 'package:qr_code_scanner_plus/qr_code_scanner_plus.dart';
-// import 'package:mobile_scanner/mobile_scanner.dart';
 
 ///
 /// Home Page
@@ -33,24 +30,31 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _cameraController.barcodes.listen((BarcodeCapture barcodes) {
-      _log.warn('.initState | barcodes: $barcodes');
-      _detectDevice.add(barcodes);
-    });
+    // _cameraController.barcodes.listen((BarcodeCapture barcodes) {
+    //   _log.warn('.initState | barcodes: $barcodes');
+    //   _detectDevice.add(barcodes);
+    // });
   }
   //
   //
   @override
   Widget build(BuildContext context) {
-    if (_cameraResolution == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    // if (_cameraResolution == null) {
+    //   return const Center(child: CircularProgressIndicator());
+    // }
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
         children: [
           MobileScanner(
             controller: _cameraController,
+            onDetect: (barcodes) {
+              _log.warn('.MobileScanner.onDetect | barcodes: $barcodes');
+              _detectDevice.add(barcodes);
+            },
+            onDetectError: (error, stackTrace) {
+              _log.warn('.MobileScanner.onError | error: $error');
+            },
           ),
           Positioned(
             top: 100,
