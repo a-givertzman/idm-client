@@ -44,16 +44,18 @@ class _HomePageState extends State<HomePage> {
   /// CameraController to only use ImageFormatGroup.nv21 for Android
   /// and ImageFormatGroup.bgra8888 for iOS. [source](https://github.com/flutter-ml/google_ml_kit_flutter/tree/master/packages/google_mlkit_commons#creating-an-inputimage).
   Future<void> _initializeCamera() async {
+    _log.warn('._initializeCamera | Camera init for ${Platform.operatingSystem}...');
     final List<CameraDescription> cameras = await availableCameras();
     final firstCamera = cameras.first;
     _log.warn('._initializeCamera | Camera: ${firstCamera.name}');
     _cameraController = CameraController(
+      fps: 1,
       firstCamera,
       ResolutionPreset.high,
       enableAudio: false,
       imageFormatGroup: Platform.isAndroid
-          ? ImageFormatGroup.nv21 // for Android
-          : ImageFormatGroup.bgra8888, // for iOS
+        ? ImageFormatGroup.nv21 // for Android
+        : ImageFormatGroup.bgra8888, // for iOS
     );
     await _cameraController.initialize();
     _detectDevice.updateOrientation(
@@ -61,6 +63,10 @@ class _HomePageState extends State<HomePage> {
       firstCamera.lensDirection,
       _cameraController.value.deviceOrientation,
     );
+    _cameraController.startImageStream((image) {
+      // _log.warn('.imageStream | Image: $image');
+      _detectDevice.add(image);
+    });
     _log.warn('._initializeCamera | Done');
     if (mounted) {
       setState(() {
@@ -70,14 +76,6 @@ class _HomePageState extends State<HomePage> {
         );
       });
     }
-  }
-  //
-  //
-  @override
-  void dispose() async {
-    await _detectDevice.close();
-    _cameraController.dispose();
-    super.dispose();
   }
   //
   //
@@ -92,13 +90,24 @@ class _HomePageState extends State<HomePage> {
         children: [
           CameraPreview(
             _cameraController,
-            child: const Text('This is a CHILD widget'),
+            child: Positioned(
+              top: 100,
+              left: 100,
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(width: 5, color: Colors.deepOrange)
+                ),
+                child: Text('This is a Text widget', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.amber)),
+              )
+            ),
           ),
           StreamBuilder(
             stream: _detectDevice.stream,
             builder: (BuildContext context, AsyncSnapshot<Device> snapshot) {
+              _log.warn('._initializeCamera | snapshot: ${snapshot}');
               _updateDevices(snapshot);
               return Stack(
+                fit: StackFit.expand,
                 children: _devices.values.map((device) {
                   return Positioned(
                     left: device.pos.x,
@@ -132,6 +141,14 @@ class _HomePageState extends State<HomePage> {
         _devices[device.id] = device;
       }
     }
+  }
+  //
+  //
+  @override
+  void dispose() async {
+    await _detectDevice.close();
+    _cameraController.dispose();
+    super.dispose();
   }
 }
 ///
