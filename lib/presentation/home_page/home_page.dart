@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:hmi_core/hmi_core_log.dart';
 import 'package:idm_client/domain/detect_device/detect_device.dart';
 import 'package:idm_client/domain/device.dart';
 //import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart';
@@ -16,11 +17,12 @@ class HomePage extends StatefulWidget {
   //
   //
   @override
-  State<HomePage> createState() => _MyHomePageState();
+  State<HomePage> createState() => _HomePageState();
 }
 //
 //
-class _MyHomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> {
+  final _log = const Log("HomePage");
   late CameraController _cameraController;
   final DetectDevice _detectDevice = DetectDevice({});
   final Map<String, Device> _devices = {};
@@ -44,6 +46,7 @@ class _MyHomePageState extends State<HomePage> {
   Future<void> _initializeCamera() async {
     final List<CameraDescription> cameras = await availableCameras();
     final firstCamera = cameras.first;
+    _log.warn('._initializeCamera | Camera: ${firstCamera.name}');
     _cameraController = CameraController(
       firstCamera,
       ResolutionPreset.high,
@@ -58,6 +61,7 @@ class _MyHomePageState extends State<HomePage> {
       firstCamera.lensDirection,
       _cameraController.value.deviceOrientation,
     );
+    _log.warn('._initializeCamera | Done');
     if (mounted) {
       setState(() {
         _cameraResolution = Size(
