@@ -1,9 +1,13 @@
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:idm_client/presentation/home_page/home_page.dart';
+import 'package:idm_client/presentation/home_page/barcode.dart';
 ///
 /// Application widget
 class AppWidget extends StatelessWidget {
-  const AppWidget({super.key});
+  AppWidget({super.key, required this.cameras});
+
+  late List<CameraDescription> cameras;
   //
   // This widget is the root of your application.
   @override
@@ -30,7 +34,8 @@ class AppWidget extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         //useMaterial3: true,
       ),
-      home: const HomePage(title: 'Flutter Demo Home Page'),
+      //home: BarcodeScannerWithScanWindow(),
+      home: HomePage(cameras: cameras),
     );
   }
 }
