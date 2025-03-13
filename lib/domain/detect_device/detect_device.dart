@@ -3,18 +3,20 @@ import 'dart:io';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/services.dart';
-import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart';
 import 'package:hmi_core/hmi_core_log.dart';
 import 'package:idm_client/domain/device.dart';
 import 'package:idm_client/domain/pos.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 
 ///
 /// TODO: To be added
 class DetectDevice {
   final _log = const Log("DetectDevice");
   final StreamController<Device> _controller = StreamController();
-  // TODO: Use some single BarcodeFormat, to be mach more faster
-  final barcodeScanner = BarcodeScanner(formats: [BarcodeFormat.all]);
+  final MobileScannerController barcodeScanner = MobileScannerController(
+    formats: [BarcodeFormat.all],
+  );
+
   final Map<String, String> _details;
   DeviceOrientation _deviceOrientation = DeviceOrientation.portraitUp;
   int _sensorOrientation = 0;
@@ -150,7 +152,7 @@ class DetectDevice {
     // * nv21 for Android
     // * bgra8888 for iOS
     final Uint8List bytes;
-    int bytesPerRow = 0;
+    int bytesPerRow = image.planes.first.bytesPerRow;
     switch (format) {
       case null:
         return null;
