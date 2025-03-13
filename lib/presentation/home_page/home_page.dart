@@ -63,40 +63,25 @@ class _HomePageState extends State<HomePage> {
               child: Text('This is a Text widget', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.amber)),
             )
           ),
-          StreamBuilder(
-            stream: _detectDevice.stream,
-            builder: (BuildContext context, AsyncSnapshot<Device> snapshot) {
-              // _log.warn('.StreamBuilder | snapshot: $snapshot');
-              _log.warn('.StreamBuilder | Data: ${snapshot.data}');
-              _log.warn('.StreamBuilder | Error: ${snapshot.error}');
-              _updateDevices(snapshot);
-              return Stack(
-                children: _devices.values.map((device) {
-                  _log.warn('.StreamBuilder | Device x: ${device.pos.x}  y: ${device.pos.y}');
-                  return Positioned(
-                    left: device.pos.x,
-                    top: device.pos.y,
-                    child: ListTile(
-                      title: Text('${device.id}: ${device.title}'),
-                      subtitle: Text(device.details),
-                    ),
-                  );
-                }).toList(),
-                // children: [
-                //   Positioned(
-                //     top: 200,
-                //     left: 100,
-                //     child: Container(
-                //       decoration: BoxDecoration(
-                //         border: Border.all(width: 5, color: Colors.deepOrange)
-                //       ),
-                //       child: Text('This is a Text widget', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.amber)),
-                //     )
-                //   )
-                // ]
-              );
-            }
-          ),
+          LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
+            return StreamBuilder(
+              stream: _detectDevice.stream,
+              builder: (BuildContext context, AsyncSnapshot<Device> snapshot) {
+                // _log.warn('.StreamBuilder | snapshot: $snapshot');
+                _log.warn('.StreamBuilder | Data: ${snapshot.data}');
+                _log.warn('.StreamBuilder | Error: ${snapshot.error}');
+                _updateDevices(snapshot);
+                final devWidget = CustomPaint(
+                  size: Size(constraints.maxWidth, constraints.maxHeight),
+                  painter: _DevicePainter(
+                    _devices.values.toList(),
+                  )
+                );
+                _devices.clear();
+                return devWidget;
+              }
+            );
+          })
         ],
       ),
     );
@@ -158,4 +143,39 @@ class DeviceOverviewWidget extends StatelessWidget {
       },
     );
   }
+}
+///
+///
+class _DevicePainter extends CustomPainter {
+  final _log = const Log("DevicePainter");
+  final List<Device> _devices;
+  ///
+  ///
+  _DevicePainter(
+    List<Device> devices,
+  ) : _devices = devices;
+  //
+  //
+  @override
+  void paint(Canvas canvas, Size size) {
+    for (final dev in _devices) {
+      _log.warn('.StreamBuilder | Device Pos(${dev.pos.x}, ${dev.pos.y})  size: ${dev.size}');
+      final Rect rect = Rect.fromPoints(Offset(dev.pos.x, dev.pos.y), Offset(dev.pos.x + dev.size.width, dev.pos.y + dev.size.width));
+      canvas.drawRect(
+        rect,
+        // Paint()..shader = gradient.createShader(rect),
+        Paint()
+          ..style=PaintingStyle.stroke
+          ..color = Colors.blueAccent
+          ..strokeWidth = 3.0
+      );
+      //         title: Text('${device.id}: ${device.title}'),
+      //         subtitle: Text(device.details),
+
+    }
+  }
+  //
+  //
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => true;
 }
