@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:idm_client/domain/detect_device/detect_device.dart';
@@ -20,38 +22,42 @@ class HomePage extends StatefulWidget {
 //
 class _MyHomePageState extends State<HomePage> {
   late CameraController _cameraController;
-  final DetectDevice _detectDevice = DetectDevice();
+  final DetectDevice _detectDevice = DetectDevice({});
   final Map<String, Device> _devices = {};
-  // late MobileScannerController _controller;
   Size? _cameraResolution;
-  Rect? _qrRect;
   Size? _screenSize;
-  String? _qrData;
-
+  //
+  //
   @override
   void initState() {
     super.initState();
-    // _controller = MobileScannerController(
-    //     detectionSpeed: DetectionSpeed.normal,
-    //     //facing: CameraFacing.back,
-    //     torchEnabled: false,
-    //     //cameraResolution: Size(2000, 2000)
-    //     );
-
     _initializeCamera();
   }
-
+  ///
+  /// Camera initialization
+  /// 
+  /// IMPORTENT !
+  /// 
+  /// If you are using the Camera plugin make sure to configure your
+  /// CameraController to only use ImageFormatGroup.nv21 for Android
+  /// and ImageFormatGroup.bgra8888 for iOS. [source](https://github.com/flutter-ml/google_ml_kit_flutter/tree/master/packages/google_mlkit_commons#creating-an-inputimage).
   Future<void> _initializeCamera() async {
-    final cameras = await availableCameras();
+    final List<CameraDescription> cameras = await availableCameras();
     final firstCamera = cameras.first;
-
     _cameraController = CameraController(
       firstCamera,
       ResolutionPreset.high,
+      enableAudio: false,
+      imageFormatGroup: Platform.isAndroid
+          ? ImageFormatGroup.nv21 // for Android
+          : ImageFormatGroup.bgra8888, // for iOS
     );
-
     await _cameraController.initialize();
-
+    _detectDevice.updateOrientation(
+      firstCamera.sensorOrientation,
+      firstCamera.lensDirection,
+      _cameraController.value.deviceOrientation,
+    );
     if (mounted) {
       setState(() {
         _cameraResolution = Size(
@@ -60,16 +66,12 @@ class _MyHomePageState extends State<HomePage> {
         );
       });
     }
-
-    // _controller = MobileScannerController();
-    // await _controller!.start();
   }
   //
   //
   @override
   void dispose() async {
-    //await _detectDevice.close();
-    // _controller.dispose();
+    await _detectDevice.close();
     _cameraController.dispose();
     super.dispose();
   }
@@ -84,22 +86,21 @@ class _MyHomePageState extends State<HomePage> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // MobileScanner(
-          //   controller: _controller,
-          //   onDetect: _handleDetect,
-          // ),
+          CameraPreview(
+            _cameraController,
+            child: const Text('This is a CHILD widget'),
+          ),
           StreamBuilder(
             stream: _detectDevice.stream,
-            builder: (BuildContext context, AsyncSnapshot snapshot) {
+            builder: (BuildContext context, AsyncSnapshot<Device> snapshot) {
+              _updateDevices(snapshot);
               return Stack(
-                children: _devices.entries.map((entry) {
-                  final id = entry.key;
-                  final device = entry.value;
+                children: _devices.values.map((device) {
                   return Positioned(
                     left: device.pos.x,
                     top: device.pos.y,
                     child: ListTile(
-                      title: Text('${device.id}: ${device.name}'),
+                      title: Text('${device.id}: ${device.title}'),
                       subtitle: Text(device.details),
                       // width: _qrRect!.width,
                       // height: _qrRect!.height,
@@ -115,6 +116,18 @@ class _MyHomePageState extends State<HomePage> {
         ],
       ),
     );
+  }
+  ///
+  /// Write barcode iformation into list of [Device]'s
+  void _updateDevices(AsyncSnapshot<Device> snapshot) {
+    final device = snapshot.data;
+    if (device != null) {
+      if (_devices.containsKey(device.id)) {
+        _devices[device.id] = device;
+      } else {
+        _devices[device.id] = device;
+      }
+    }
   }
 }
 ///
