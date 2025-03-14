@@ -1,34 +1,55 @@
 import 'dart:async';
 
-import 'package:camera/camera.dart';
-import 'package:flutter/material.dart';
-import 'package:idm_client/presentation/home_page/home_page.dart';
+import 'package:hmi_core/hmi_core_log.dart';
+import 'package:idm_client/domain/device.dart';
+import 'package:idm_client/domain/pos.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 
 ///
 /// TODO: To be added
 class DetectDevice {
+  final _log = const Log("DetectDevice");
   final StreamController<Device> _controller = StreamController();
-  bool _exit = false;
-  // TODO: to be deleted
-  int _count = 0;
-
+  final Map<String, String> _details;
   ///
-  /// TODO: To be added
-  DetectDevice();
+  /// Returns stream of detected [Device]'s
+  /// - use `add()` method to pass frames to be scanned for [Device]'s barcodes
+  DetectDevice(
+    Map<String, String>? deviceDetails,
+  ):
+    _details = deviceDetails ?? {};
 
   ///
   /// Add new image for detection
-  void add(CameraImage image) {
-    _count++;
-    const x = 30.0;
-    final y = _count * 2.0;
-    _controller.add(Device(
-      id: '01',
-      name: 'Device.Detected',
-      pos: Pos(x, y),
-    ));
-    if (_count > 100) {
-      _count = 0;
+  void add(BarcodeCapture event) {
+    // _log.warn('.add | Barcodes: ${event.barcodes}');
+    for (Barcode barcode in event.barcodes) {
+      // _log.warn('.add | Barcode: $barcode');
+      _log.warn('.add | Barcode: type: ${barcode.type}, url: ${barcode.url?.url}');
+      switch (barcode.type) {
+        case BarcodeType.url:
+          final id = barcode.url?.url;
+          final title = barcode.url?.title ?? 'Undefined device';
+          final details = _details[id] ?? barcode.displayValue ?? '---';
+          if (id != null) {
+            _controller.add(Device(
+              id: id,
+              title: title,
+              pos: Pos(
+                barcode.corners.first.dx,
+                barcode.corners.first.dy,
+              ),
+              size: barcode.size,
+              details: details,
+              timeout: const Duration(milliseconds: 3000),
+            ));
+          } else {
+            _log.warn('.add | Unknown bar-code: $barcode');
+          }
+          break;
+        default:
+          _log.warn('.add | Unknown bar-code type: ${barcode.type}');
+      }
     }
   }
 
@@ -37,11 +58,9 @@ class DetectDevice {
   Stream<Device> get stream {
     return _controller.stream;
   }
-
   ///
   /// Clear resources
   Future close() {
-    _exit = true;
     return _controller.close();
   }
 }

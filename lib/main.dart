@@ -1,13 +1,16 @@
-import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:hmi_core/hmi_core_log.dart';
 import 'package:idm_client/presentation/app_widget.dart';
-//
-//
-late List<CameraDescription> cameras;
 ///
-/// Pplication entry point
+/// Application entry point
 void main() async {
+  Log.initialize(
+    level: switch(kDebugMode) {
+      true => LogLevel.debug,
+      false => LogLevel.info,
+    },
+  );
   WidgetsFlutterBinding.ensureInitialized();
-  cameras = await availableCameras();
-  runApp(AppWidget(cameras: cameras));
+  runApp(const AppWidget());
 }
