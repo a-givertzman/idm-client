@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hmi_core/hmi_core_log.dart';
 import 'package:idm_client/domain/detect_device/detect_device.dart';
 import 'package:idm_client/domain/device.dart';
-import 'package:idm_client/presentation/home_page/widgets/device_pinter.dart';
+import 'package:idm_client/presentation/home_page/widgets/device_painter.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 ///
 /// The body of the HomePage
@@ -70,15 +70,13 @@ class _HomeBodyState extends State<HomeBody> {
                 }
                 // _log.warn('.StreamBuilder | Data: ${snapshot.data}');
                 _updateDevices(snapshot);
-                final devWidget = CustomPaint(
+                return CustomPaint(
                   size: Size(constraints.maxWidth, constraints.maxHeight),
                   painter: DevicePainter(
                     _cameraController.value.size,
                     _devices.values.toList(),
                   )
                 );
-                _devices.clear();
-                return devWidget;
               }
             );
           })
@@ -97,6 +95,9 @@ class _HomeBodyState extends State<HomeBody> {
         _devices[device.id] = device;
       }
     }
+    _devices.removeWhere((key, Device dev) {
+      return !dev.isActual;
+    });
   }
   //
   //
