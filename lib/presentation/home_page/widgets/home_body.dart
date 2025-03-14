@@ -18,6 +18,8 @@ class HomeBody extends StatefulWidget {
 class _HomeBodyState extends State<HomeBody> {
   final _log = const Log("HomeBody");
   final MobileScannerController _cameraController = MobileScannerController(
+    facing: CameraFacing.back,
+    detectionSpeed: DetectionSpeed.normal,
     detectionTimeoutMs: 1000,
     formats: [BarcodeFormat.all],
   );
@@ -71,7 +73,7 @@ class _HomeBodyState extends State<HomeBody> {
                 final devWidget = CustomPaint(
                   size: Size(constraints.maxWidth, constraints.maxHeight),
                   painter: DevicePainter(
-                    _cameraController.cameraResolution,
+                    _cameraController.value.size,
                     _devices.values.toList(),
                   )
                 );
@@ -103,58 +105,5 @@ class _HomeBodyState extends State<HomeBody> {
     await _detectDevice.close();
     _cameraController.dispose();
     super.dispose();
-  }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-///
-///
-class DeviceOverviewWidget extends StatelessWidget {
-  const DeviceOverviewWidget({
-    super.key,
-    required DetectDevice detectDevice,
-  }) : _detectDevice = detectDevice;
-
-  final DetectDevice _detectDevice;
-
-  @override
-  Widget build(BuildContext context) {
-    return StreamBuilder(
-      stream: _detectDevice.stream,
-      builder: (BuildContext context, AsyncSnapshot<Device> snapshot) {
-        if (snapshot.hasData) {
-          final event = snapshot.data;
-          if (event != null) {
-            return Positioned(
-              left: event.pos.x,
-              top: event.pos.y,
-              child: Container(
-                width: MediaQuery.of(context).size.width * 0.4,
-                height: MediaQuery.of(context).size.width * 0.4,
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white, width: 3),
-                  color: Colors.transparent,
-                ),
-              ),
-            );
-          }
-        }
-        return const Text('???');
-      },
-    );
   }
 }
