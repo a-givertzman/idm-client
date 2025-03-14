@@ -20,7 +20,7 @@ class _HomeBodyState extends State<HomeBody> {
   final MobileScannerController _cameraController = MobileScannerController(
     facing: CameraFacing.back,
     detectionSpeed: DetectionSpeed.normal,
-    detectionTimeoutMs: 1000,
+    detectionTimeoutMs: 500,
     formats: [BarcodeFormat.all],
   );
   final DetectDevice _detectDevice = DetectDevice({});
@@ -87,17 +87,13 @@ class _HomeBodyState extends State<HomeBody> {
   ///
   /// Write barcode iformation into list of [Device]'s
   void _updateDevices(AsyncSnapshot<Device> snapshot) {
-    final device = snapshot.data;
-    if (device != null) {
-      if (_devices.containsKey(device.id)) {
-        _devices[device.id] = device;
-      } else {
-        _devices[device.id] = device;
-      }
-    }
     _devices.removeWhere((key, Device dev) {
       return !dev.isActual;
     });
+    final device = snapshot.data;
+    if (device != null) {
+        _devices[device.id] = device;
+    }
   }
   //
   //

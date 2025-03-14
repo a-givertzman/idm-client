@@ -40,7 +40,8 @@ class DetectDevice {
                 barcode.corners.first.dy,
               ),
               size: barcode.size,
-              details: details
+              details: details,
+              timeout: const Duration(milliseconds: 3000),
             ));
           } else {
             _log.warn('.add | Unknown bar-code: $barcode');

@@ -22,29 +22,25 @@ class DevicePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     canvas.drawRect(
       Rect.fromLTWH(0, 0, size.width, size.height),
-      // Paint()..shader = gradient.createShader(rect),
       Paint()
         ..style=PaintingStyle.stroke
         ..color = Colors.deepOrange
         ..strokeWidth = 3.0
     );
-
-    final cameraSize = _cameraSize;
-    _log.warn('.StreamBuilder | cameraSize: $cameraSize');
-    _log.warn('.StreamBuilder | canvasSize: $size');
-    final xScale = size.width / cameraSize.width ;
-    final yScale = size.height / cameraSize.height;
-    _log.warn('.StreamBuilder | xScale: $xScale, yScale: $yScale');
+    // _log.warn('.StreamBuilder | cameraSize: $cameraSize');
+    // _log.warn('.StreamBuilder | canvasSize: $size');
+    final xScale = size.width / _cameraSize.width ;
+    final yScale = size.height / _cameraSize.height;
+    // _log.warn('.StreamBuilder | xScale: $xScale, yScale: $yScale');
     for (final dev in _devices) {
       final x = dev.pos.x * xScale;
       final y = dev.pos.y * yScale;
       final width = dev.size.width * xScale;
       final heigh = dev.size.height * yScale;
-      _log.warn('.StreamBuilder | Device Pos($x, $y)  size: ($width, $heigh)');
+      // _log.warn('.StreamBuilder | Device Pos($x, $y)  size: ($width, $heigh)');
       final Rect rect = Offset(x, y) & Size(width, heigh);
       canvas.drawRect(
         rect,
-        // Paint()..shader = gradient.createShader(rect),
         Paint()
           ..style=PaintingStyle.stroke
           ..color = Colors.blueAccent
@@ -56,7 +52,7 @@ class DevicePainter extends CustomPainter {
   }
   void paintText(Canvas canvas, String text, double x, double y, double width) {
       const textStyle = TextStyle(
-        color: Colors.black,
+        color: Colors.blueAccent,
         fontSize: 16,
       );
       final textPainter = TextPainter(
@@ -70,8 +66,6 @@ class DevicePainter extends CustomPainter {
         minWidth: 0,
         maxWidth: width,
       );
-      // final xCenter = (size.width - textPainter.width) / 2;
-      // final yCenter = (size.height - textPainter.height) / 2;
       textPainter.paint(canvas, Offset(x, y));
   }
   //
