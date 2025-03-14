@@ -1,4 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- added by Liza -->
+    <uses-feature 
+        android:name="android.hardware.camera" 
+        android:required="true"
+    />
+    <!-- added by Liza -->
     <application
         android:label="idm_client"
         android:name="${applicationName}"
