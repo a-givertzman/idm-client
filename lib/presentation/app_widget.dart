@@ -1,13 +1,9 @@
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:idm_client/presentation/home_page/home_page.dart';
-import 'package:idm_client/presentation/home_page/barcode.dart';
 ///
 /// Application widget
 class AppWidget extends StatelessWidget {
-  AppWidget({super.key, required this.cameras});
-
-  late List<CameraDescription> cameras;
+  const AppWidget({super.key});
   //
   // This widget is the root of your application.
   @override
@@ -35,7 +31,7 @@ class AppWidget extends StatelessWidget {
         //useMaterial3: true,
       ),
       //home: BarcodeScannerWithScanWindow(),
-      home: HomePage(cameras: cameras),
+      home: const HomePage(title: "Home page"),
     );
   }
 }

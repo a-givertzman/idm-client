@@ -4,8 +4,11 @@ import 'package:idm_client/presentation/home_page/widgets/home_body.dart';
 ///
 /// HomePage
 class HomePage extends StatelessWidget {
-  const HomePage({super.key, required this.title});
   final String title;
+  const HomePage({
+    super.key,
+    required this.title
+  });
   //
   //
   @override
