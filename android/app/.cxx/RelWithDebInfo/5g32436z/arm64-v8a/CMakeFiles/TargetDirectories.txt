@@ -1,0 +1,2 @@
+/home/lobanov/code/flutter/idm-client/android/app/.cxx/RelWithDebInfo/5g32436z/arm64-v8a/CMakeFiles/edit_cache.dir
+/home/lobanov/code/flutter/idm-client/android/app/.cxx/RelWithDebInfo/5g32436z/arm64-v8a/CMakeFiles/rebuild_cache.dir
