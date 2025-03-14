@@ -11,7 +11,7 @@ class Device {
   static const _log = Log("Device");
   static final Finalizer<Timer> _finalizer = Finalizer((t) {
     t.cancel();
-    _log.warn('.Finalizer | Timer canceled');
+    _log.trace('.Finalizer | Timer canceled');
   });
   final String id;
   final String title;
@@ -36,7 +36,7 @@ class Device {
         _isActual = false;
       }
     );
-    _finalizer.attach(t, t);
+    _finalizer.attach(t, Timer(const Duration(), () {}));
   }
   ///
   /// - Returns true antil it must live

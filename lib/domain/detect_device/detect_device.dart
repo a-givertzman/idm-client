@@ -25,7 +25,7 @@ class DetectDevice {
     // _log.warn('.add | Barcodes: ${event.barcodes}');
     for (Barcode barcode in event.barcodes) {
       // _log.warn('.add | Barcode: $barcode');
-      _log.warn('.add | Barcode.type: ${barcode.type}');
+      _log.warn('.add | Barcode: type: ${barcode.type}, url: ${barcode.url?.url}');
       switch (barcode.type) {
         case BarcodeType.url:
           final id = barcode.url?.url;

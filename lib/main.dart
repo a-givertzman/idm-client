@@ -7,7 +7,7 @@ import 'package:idm_client/presentation/app_widget.dart';
 void main() async {
   Log.initialize(
     level: switch(kDebugMode) {
-      true => LogLevel.all,
+      true => LogLevel.debug,
       false => LogLevel.info,
     },
   );

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:hmi_core/hmi_core_log.dart';
+// import 'package:hmi_core/hmi_core_log.dart';
 import 'package:idm_client/domain/device.dart';
 
 ///
 ///
 class DevicePainter extends CustomPainter {
-  final _log = const Log("DevicePainter");
+  // final _log = const Log("DevicePainter");
   final Size _cameraSize;
   final List<Device> _devices;
   ///
