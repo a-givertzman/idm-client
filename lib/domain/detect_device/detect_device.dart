@@ -1,31 +1,28 @@
 import 'dart:async';
-
 import 'package:hmi_core/hmi_core_log.dart';
 import 'package:idm_client/domain/device.dart';
 import 'package:idm_client/domain/pos.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-
 ///
-/// TODO: To be added
+/// Device detection by QR code.
+/// Processes camera frames, recognizes qr codes and creates devices.
 class DetectDevice {
   final _log = const Log("DetectDevice");
-  final StreamController<Device> _controller = StreamController();
+  final StreamController<Device?> _controller = StreamController.broadcast();
   final Map<String, String> _details;
   ///
-  /// Returns stream of detected [Device]'s
-  /// - use `add()` method to pass frames to be scanned for [Device]'s barcodes
+  /// Creates a new instance of [DetectDevice] with [deviceDetails] that could be null.
+  /// Returns stream of detected [Device]'s.
   DetectDevice(
     Map<String, String>? deviceDetails,
-  ):
-    _details = deviceDetails ?? {};
+  ) : _details = deviceDetails ?? {};
 
   ///
-  /// Add new image for detection
+  /// Add new [event] for detection.
   void add(BarcodeCapture event) {
-    // _log.warn('.add | Barcodes: ${event.barcodes}');
     for (Barcode barcode in event.barcodes) {
-      // _log.warn('.add | Barcode: $barcode');
-      _log.warn('.add | Barcode: type: ${barcode.type}, url: ${barcode.url?.url}');
+      _log.warn(
+          '.add | Barcode: type: ${barcode.type}, url: ${barcode.url?.url}');
       switch (barcode.type) {
         case BarcodeType.url:
           final id = barcode.url?.url;
@@ -41,7 +38,8 @@ class DetectDevice {
               ),
               size: barcode.size,
               details: details,
-              timeout: const Duration(milliseconds: 3000),
+              timeout: const Duration(milliseconds: 500),
+              onExpire: () => addEmpty(),
             ));
           } else {
             _log.warn('.add | Unknown bar-code: $barcode');
@@ -53,13 +51,22 @@ class DetectDevice {
     }
   }
 
-  ///
-  /// Detected devices
-  Stream<Device> get stream {
+  /// Stream of detected devices.
+  /// Returns [Device] when detected, or null when time expires.
+  Stream<Device?> get stream {
     return _controller.stream;
   }
   ///
-  /// Clear resources
+  /// Sends null to the thread to process the device disappearing.
+  void addEmpty() {
+    if (!_controller.isClosed) {
+      _log.warn('DetectDevice.addEmpty() called - Sending null');
+      _controller.add(null);
+    }
+  }
+
+  ///
+  /// Clear resources.
   Future close() {
     return _controller.close();
   }
