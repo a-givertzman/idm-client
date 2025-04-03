@@ -175,7 +175,7 @@ class _HomeBodyState extends State<HomeBody> {
       top: 100,
       left: 100,
       child: Container(
-        padding: EdgeInsets.all(12),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Colors.black.withOpacity(0.7),
           borderRadius: BorderRadius.circular(8),
@@ -198,7 +198,7 @@ class _HomeBodyState extends State<HomeBody> {
       top: 100,
       left: 100,
       child: Container(
-        padding: EdgeInsets.all(12),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Colors.black.withOpacity(0.7),
           borderRadius: BorderRadius.circular(8),

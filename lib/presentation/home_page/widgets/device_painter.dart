@@ -107,7 +107,7 @@ class DeviceBarPainter extends DevicePainter {
       bottomLeft: const Radius.circular(borderRadius),
       bottomRight: const Radius.circular(borderRadius),
     );
-    final gradient = const LinearGradient(
+    const gradient = LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
       colors: [
