@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:idm_client/presentation/home_page/widgets/home_body.dart';
-
 ///
-/// HomePage
+/// Pepresents the main page of the application.
 class HomePage extends StatelessWidget {
-  final String title;
+  ///
+  /// Creates a new instanse of [HomePage] with [key].
   const HomePage({
     super.key,
-    required this.title
   });
   //
   //
