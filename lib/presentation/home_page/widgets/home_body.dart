@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hmi_core/hmi_core_log.dart';
 import 'package:idm_client/domain/detect_device/detect_device.dart';
 import 'package:idm_client/domain/device.dart';
+import 'package:idm_client/presentation/home_page/widgets/device_info_widget.dart';
 import 'package:idm_client/presentation/home_page/widgets/device_painter.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:native_device_orientation/native_device_orientation.dart';
@@ -157,7 +158,11 @@ class _HomeBodyState extends State<HomeBody> {
                                 _showDoc = !_showDoc;
                                 _showInfo = false;
                               })),
-                      if (_showInfo) ...[loadInfo()],
+                      if (_showInfo && _devices.isNotEmpty) ...[
+                        DeviceInfoWidget(
+                          devId: _devices.values.first.id,
+                        )
+                      ],
                       if (_showDoc) ...[loadDoc()],
                     ],
                   );
@@ -167,30 +172,6 @@ class _HomeBodyState extends State<HomeBody> {
       );
     }));
   }
-
-  ///
-  /// Loading and displaying the information window.
-  Widget loadInfo() {
-    return Positioned(
-      top: 100,
-      left: 100,
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.7),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: const Text(
-          'I am info',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-          ),
-        ),
-      ),
-    );
-  }
-
   ///
   /// Loading and displaying the documentation window.
   Widget loadDoc() {
@@ -213,6 +194,7 @@ class _HomeBodyState extends State<HomeBody> {
       ),
     );
   }
+
   ///
   /// Write barcode information into list of [Device]'s.
   void _updateDevices(AsyncSnapshot<Device?> snapshot) {
@@ -230,6 +212,7 @@ class _HomeBodyState extends State<HomeBody> {
       return !dev.isActual;
     });
   }
+
   //
   //
   @override
