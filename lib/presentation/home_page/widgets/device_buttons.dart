@@ -59,7 +59,5 @@ class DeviceButtons extends StatelessWidget {
             ),
           ],
         ));
-    //                     if (_showInfo) ...[loadInfo()],
-    //                     if (_showDoc) ...[loadDoc()],
   }
 }

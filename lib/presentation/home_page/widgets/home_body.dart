@@ -157,10 +157,14 @@ class _HomeBodyState extends State<HomeBody> {
                           onDocPressed: () => setState(() {
                                 _showDoc = !_showDoc;
                                 _showInfo = false;
-                              })),
+                        }),
+                      ),
                       if (_showInfo && _devices.isNotEmpty) ...[
                         DeviceInfoWidget(
                           devId: _devices.values.first.id,
+                          onClosePressed: () => setState(() {
+                            _showInfo = false;
+                          }),
                         )
                       ],
                       if (_showDoc) ...[loadDoc()],
