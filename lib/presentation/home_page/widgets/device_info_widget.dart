@@ -1,14 +1,15 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:hmi_core/hmi_core_log.dart';
+import 'package:hmi_core/hmi_core_result.dart';
+import 'package:idm_client/domain/error/failure.dart';
+import 'package:idm_client/infrostructure/device_info/device_info.dart';
 
 ///
 /// Widget for showing information frame
 class DeviceInfoWidget extends StatefulWidget {
   final String devId;
   final VoidCallback onClosePressed;
-
+  final String apiAddress;
   ///
   /// Creates a new instanse of [DeviceInfoWidget] with [key], given id of device [devId]
   /// and callback of pressing close button
@@ -16,6 +17,7 @@ class DeviceInfoWidget extends StatefulWidget {
     super.key,
     required this.devId,
     required this.onClosePressed,
+    this.apiAddress = '',
   });
   //
   //
@@ -26,46 +28,13 @@ class DeviceInfoWidget extends StatefulWidget {
 ///
 /// Status of the [DeviceInfoWidget].
 class _DeviceInfoWidgetState extends State<DeviceInfoWidget> {
-  late Future<Map<String, dynamic>> _deviceInfoFuture;
-  final _log = const Log("DeviceInfoWidget");
+  late final Log _log;
   //
   //
   @override
   void initState() {
+    _log = Log('$runtimeType');
     super.initState();
-    _deviceInfoFuture = _fetchDeviceInfo(widget.devId);
-  }
-  //
-  //
-  Future<Map<String, dynamic>> _fetchDeviceInfo(String devId) async {
-    try {
-      await Future.delayed(const Duration(milliseconds: 300));
-      final content = await rootBundle.loadString('assets/device/device.json');
-      final devices = jsonDecode(content);
-      Map<String, dynamic> response;
-      if (devices.containsKey(devId)) {
-        response = {
-          "ok": devices[devId],
-          "err": null,
-        };
-      } else {
-        response = {
-          "ok": null,
-          "err": {
-            "msg": "Device not found",
-            "details": "No data for dev-id '$devId'"
-          },
-        };
-      }
-      if (response['ok'] != null) {
-        return devices[devId];
-      } else {
-        throw Exception('Устройство не найдено');
-      }
-    } catch (e) {
-      _log.warn('Error loading device info: $e');
-      rethrow;
-    }
   }
   //
   //
@@ -74,10 +43,14 @@ class _DeviceInfoWidgetState extends State<DeviceInfoWidget> {
     const padding = 24.0;
     return Center(
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(
-            padding, padding * 4, padding, padding * 6),
-        child: FutureBuilder<Map<String, dynamic>>(
-          future: _deviceInfoFuture,
+        padding: const EdgeInsets.only(
+          left: padding,
+          top: padding * 4,
+          right: padding,
+          bottom: padding * 6,
+        ),
+        child: FutureBuilder<Result<DeviceInfo, Failure>>(
+          future: DeviceInfo.fromApi(address: widget.apiAddress).fetch(widget.devId),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
@@ -86,10 +59,20 @@ class _DeviceInfoWidgetState extends State<DeviceInfoWidget> {
                 ),
               );
             }
-            if (snapshot.hasError && snapshot.data == null) {
-              return _buildError();
+            switch (snapshot.data) {
+              case Ok(value : final devInfo):
+                _log.trace('.build | devInfo: $devInfo');
+                return _buildInfo(devInfo);
+              case Err(:final error):
+                _log.warn('.build | error: $error');
+                return _buildError('$error');
+              case null:
+                if (snapshot.hasError) {
+                  _log.warn('.build | error: ${snapshot.error}');
+                  return _buildError('${snapshot.error}');
+                }
+                return _buildError('No info found for divice ID "${widget.devId}"');
             }
-            return _buildInfo(snapshot);
           },
         ),
       ),
@@ -98,23 +81,23 @@ class _DeviceInfoWidgetState extends State<DeviceInfoWidget> {
 
   ///
   /// Building an error frame.
-  Widget _buildError() {
+  Widget _buildError(String error) {
     return Center(
       child: Container(
         decoration: BoxDecoration(
           color: const Color.fromARGB(255, 34, 36, 37),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: const Text('No data available for this device!',
-            style: TextStyle(color: Colors.white)),
+        child: Text(
+          error,
+          style: const TextStyle(color: Colors.white)),
       ),
     );
   }
 
   ///
   /// Building an inforamation frame.
-  Widget _buildInfo(AsyncSnapshot<Map<String, dynamic>> snapshot) {
-    final info = snapshot.data!;
+  Widget _buildInfo(DeviceInfo info) {
     return Stack(children: [
       Container(
         padding: const EdgeInsets.all(16),
@@ -128,13 +111,13 @@ class _DeviceInfoWidgetState extends State<DeviceInfoWidget> {
           children: [
             Text('ID: ${widget.devId}',
                 style: const TextStyle(color: Colors.white)),
-            Text('manufacturer: ${info['manufacturer']}',
+            Text('manufacturer: ${info.manufacturer}',
                 style: const TextStyle(color: Colors.white)),
-            Text('name: ${info['name']}',
+            Text('name: ${info.name}',
                 style: const TextStyle(color: Colors.white)),
-            Text('model: ${info['model']}',
+            Text('model: ${info.model}',
                 style: const TextStyle(color: Colors.white)),
-            Text('description: ${info['description']}',
+            Text('description: ${info.description}',
                 style: const TextStyle(color: Colors.white)),
           ],
         ),
