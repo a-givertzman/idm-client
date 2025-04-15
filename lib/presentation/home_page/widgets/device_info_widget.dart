@@ -51,7 +51,7 @@ class _DeviceInfoWidgetState extends State<DeviceInfoWidget> {
         ),
         child: FutureBuilder<Result<DeviceInfo, Failure>>(
           future: DeviceInfo.fromApi(address: widget.apiAddress).fetch(widget.devId),
-          builder: (context, snapshot) {
+          builder: (BuildContext context, AsyncSnapshot<Result<DeviceInfo, Failure>> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
                 child: CircularProgressIndicator(
