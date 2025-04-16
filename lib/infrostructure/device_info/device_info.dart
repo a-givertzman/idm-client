@@ -1,12 +1,11 @@
 import 'dart:convert';
-
 import 'package:flutter/services.dart';
 import 'package:hmi_core/hmi_core_result.dart';
 import 'package:idm_client/domain/error/failure.dart';
 import 'package:idm_client/infrostructure/device_info/api.dart';
 
 ///
-/// TODO: Type doc
+/// Provides basic overview info by device
 class DeviceInfo {
   String? manufacturer;
   String? vendor;
@@ -20,8 +19,20 @@ class DeviceInfo {
   String? depth;
   String? weight;
   Api? _remote;
+
   ///
-  /// TODO: Type doc
+  /// Creates a new instanse of [DeviceInfo] with fields:
+  /// - manufacturer
+  /// - vendor
+  /// - orderCode
+  /// - model
+  /// - serial
+  /// - name
+  /// - description
+  /// - width
+  /// - height
+  /// - depth
+  /// - weight
   DeviceInfo({
     this.manufacturer,
     this.vendor,
@@ -35,37 +46,27 @@ class DeviceInfo {
     this.depth,
     this.weight,
   });
-  ///
-  /// TODO: Type doc
+
   DeviceInfo.fromApi({
     required String address,
-  }):
-    _remote = Api(address);
-  ///
-  /// TODO: Type doc
+  }) : _remote = Api(address);
+
   Future<Result<DeviceInfo, Failure>> fetch(String id) async {
-    await Future.delayed(const Duration(milliseconds: 300));
     final content = await rootBundle.loadString('assets/device/device.json');
     final devices = jsonDecode(content);
-    Map<String, dynamic> response;
+
     if (devices.containsKey(id)) {
-      response = {
-        "ok": devices[id],
-        "err": null,
-      };
+      final data = devices[id] as Map<String, dynamic>;
+      return Ok(DeviceInfo(
+        manufacturer: data['manufacturer'],
+        name: data['name'],
+        model: data['model'],
+        description: data['description'],
+      ));
     } else {
-      response = {
-        "ok": null,
-        "err": {
-          "msg": "Device not found",
-          "details": "No data for dev-id '$id'"
-        },
-      };
-    }
-    if (response['ok'] != null) {
-      return devices[id];
-    } else {
-      throw Exception('Устройство не найдено');
+      return Err(Failure(
+        ("Device not found"),
+      ));
     }
   }
 }

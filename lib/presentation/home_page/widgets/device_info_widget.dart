@@ -1,8 +1,11 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hmi_core/hmi_core_log.dart';
 import 'package:hmi_core/hmi_core_result.dart';
 import 'package:idm_client/domain/error/failure.dart';
 import 'package:idm_client/infrostructure/device_info/device_info.dart';
+import 'package:idm_client/infrostructure/device_stream/message.dart';
 
 ///
 /// Widget for showing information frame
@@ -10,17 +13,17 @@ class DeviceInfoWidget extends StatefulWidget {
   final String devId;
   final VoidCallback onClosePressed;
   final String apiAddress;
+
   ///
-  /// Creates a new instanse of [DeviceInfoWidget] with [key], given id of device [devId]
-  /// and callback of pressing close button
+  /// Creates a new instanse of [DeviceInfoWidget] with [key], given id of device [devId],
+  /// callback of pressing close button [onClosePressed] and current address [apiAddress]
   const DeviceInfoWidget({
     super.key,
     required this.devId,
     required this.onClosePressed,
     this.apiAddress = '',
   });
-  //
-  //
+
   @override
   State<DeviceInfoWidget> createState() => _DeviceInfoWidgetState();
 }
@@ -28,30 +31,31 @@ class DeviceInfoWidget extends StatefulWidget {
 ///
 /// Status of the [DeviceInfoWidget].
 class _DeviceInfoWidgetState extends State<DeviceInfoWidget> {
-  late final Log _log;
+  final _log = const Log("DeviceInfoWidget");
   //
   //
   @override
   void initState() {
-    _log = Log('$runtimeType');
     super.initState();
   }
+
   //
   //
   @override
   Widget build(BuildContext context) {
-    const padding = 24.0;
+    const customPadding = 24.0;
     return Center(
       child: Padding(
         padding: const EdgeInsets.only(
-          left: padding,
-          top: padding * 4,
-          right: padding,
-          bottom: padding * 6,
-        ),
+            left: customPadding,
+            top: customPadding * 4,
+            right: customPadding,
+            bottom: customPadding * 6),
         child: FutureBuilder<Result<DeviceInfo, Failure>>(
-          future: DeviceInfo.fromApi(address: widget.apiAddress).fetch(widget.devId),
-          builder: (BuildContext context, AsyncSnapshot<Result<DeviceInfo, Failure>> snapshot) {
+          future: DeviceInfo.fromApi(address: widget.apiAddress)
+              .fetch(widget.devId),
+          builder: (BuildContext context,
+              AsyncSnapshot<Result<DeviceInfo, Failure>> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
                 child: CircularProgressIndicator(
@@ -60,18 +64,19 @@ class _DeviceInfoWidgetState extends State<DeviceInfoWidget> {
               );
             }
             switch (snapshot.data) {
-              case Ok(value : final devInfo):
+              case Ok(value: final devInfo):
                 _log.trace('.build | devInfo: $devInfo');
                 return _buildInfo(devInfo);
-              case Err(:final error):
+              case Err(error: final error):
                 _log.warn('.build | error: $error');
-                return _buildError('$error');
+                return _buildError('error');
               case null:
                 if (snapshot.hasError) {
                   _log.warn('.build | error: ${snapshot.error}');
                   return _buildError('${snapshot.error}');
                 }
-                return _buildError('No info found for divice ID "${widget.devId}"');
+                return _buildError(
+                    'No info found for divice ID "${widget.devId}"');
             }
           },
         ),
@@ -88,9 +93,7 @@ class _DeviceInfoWidgetState extends State<DeviceInfoWidget> {
           color: const Color.fromARGB(255, 34, 36, 37),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Text(
-          error,
-          style: const TextStyle(color: Colors.white)),
+        child: Text(error, style: const TextStyle(color: Colors.white)),
       ),
     );
   }

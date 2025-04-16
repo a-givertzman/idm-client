@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hmi_core/hmi_core_log.dart';
 import 'package:idm_client/domain/detect_device/detect_device.dart';
 import 'package:idm_client/domain/device.dart';
+//import 'package:idm_client/presentation/home_page/widgets/device_doc_widget.dart';
 import 'package:idm_client/presentation/home_page/widgets/device_info_widget.dart';
 import 'package:idm_client/presentation/home_page/widgets/device_painter.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -167,7 +168,13 @@ class _HomeBodyState extends State<HomeBody> {
                           }),
                         )
                       ],
-                      if (_showDoc) ...[loadDoc()],
+                      if (_showDoc) ...[
+                        // DeviceDocWidget(
+                        //   devId: _devices.values.first.id,
+                        //   //onClosePressed: onClosePressed
+                        // )
+                        //DocView()
+                      ],
                     ],
                   );
                 });
@@ -176,29 +183,6 @@ class _HomeBodyState extends State<HomeBody> {
       );
     }));
   }
-  ///
-  /// Loading and displaying the documentation window.
-  Widget loadDoc() {
-    return Positioned(
-      top: 100,
-      left: 100,
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.7),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: const Text(
-          'I am doc',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16,
-          ),
-        ),
-      ),
-    );
-  }
-
   ///
   /// Write barcode information into list of [Device]'s.
   void _updateDevices(AsyncSnapshot<Device?> snapshot) {
