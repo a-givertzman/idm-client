@@ -52,6 +52,10 @@ class DeviceInfo {
   }) : _remote = Api(address);
 
   Future<Result<DeviceInfo, Failure>> fetch(String id) async {
+    final remote = _remote;
+    if (remote != null) {
+      
+    }
     final content = await rootBundle.loadString('assets/device/device.json');
     final devices = jsonDecode(content);
 
