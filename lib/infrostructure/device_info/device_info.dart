@@ -46,19 +46,20 @@ class DeviceInfo {
     this.depth,
     this.weight,
   });
-
+  ///
+  /// Returns [DeviceInfo] ready to be fetched from the API later
   DeviceInfo.fromApi({
     required String address,
   }) : _remote = Api(address);
-
+  ///
+  /// Returns fetched from the API [DeviceInfo] data
   Future<Result<DeviceInfo, Failure>> fetch(String id) async {
     final remote = _remote;
     if (remote != null) {
-      
+
     }
     final content = await rootBundle.loadString('assets/device/device.json');
     final devices = jsonDecode(content);
-
     if (devices.containsKey(id)) {
       final data = devices[id] as Map<String, dynamic>;
       return Ok(DeviceInfo(
