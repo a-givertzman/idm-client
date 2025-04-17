@@ -1,11 +1,8 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:hmi_core/hmi_core_log.dart';
 import 'package:hmi_core/hmi_core_result.dart';
 import 'package:idm_client/domain/error/failure.dart';
 import 'package:idm_client/infrostructure/device_info/device_info.dart';
-import 'package:idm_client/infrostructure/device_stream/message.dart';
 
 ///
 /// Widget for showing information frame
@@ -13,7 +10,6 @@ class DeviceInfoWidget extends StatefulWidget {
   final String devId;
   final VoidCallback onClosePressed;
   final String apiAddress;
-
   ///
   /// Creates a new instanse of [DeviceInfoWidget] with [key], given id of device [devId],
   /// callback of pressing close button [onClosePressed] and current address [apiAddress]
@@ -27,18 +23,10 @@ class DeviceInfoWidget extends StatefulWidget {
   @override
   State<DeviceInfoWidget> createState() => _DeviceInfoWidgetState();
 }
-
-///
-/// Status of the [DeviceInfoWidget].
+//
+//
 class _DeviceInfoWidgetState extends State<DeviceInfoWidget> {
   final _log = const Log("DeviceInfoWidget");
-  //
-  //
-  @override
-  void initState() {
-    super.initState();
-  }
-
   //
   //
   @override
@@ -83,7 +71,6 @@ class _DeviceInfoWidgetState extends State<DeviceInfoWidget> {
       ),
     );
   }
-
   ///
   /// Building an error frame.
   Widget _buildError(String error) {
@@ -97,7 +84,6 @@ class _DeviceInfoWidgetState extends State<DeviceInfoWidget> {
       ),
     );
   }
-
   ///
   /// Building an inforamation frame.
   Widget _buildInfo(DeviceInfo info) {
