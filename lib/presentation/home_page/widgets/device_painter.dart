@@ -91,9 +91,9 @@ class DeviceBarPainter extends DevicePainter {
   //
   @override
   void paint(Canvas canvas, Size size) {
-    const double rectHeight = 100;
+    const double rectHeight = 96;
     const double borderRadius = 30;
-    const double padding = 20;
+    const double padding = 24;
     final Rect rect = Rect.fromLTWH(
       padding,
       size.height - rectHeight - padding,
@@ -115,7 +115,7 @@ class DeviceBarPainter extends DevicePainter {
         Color.fromARGB(255, 37, 86, 123), // Конечный цвет
         Color.fromARGB(2255, 3, 62, 107), // Дополнительный цвет
       ],
-      stops: [0.0, 0.5, 1.0], // Позиции цветов (0-1)
+      stops: [0.0, 0.5, 1.0],
     );
     canvas.drawRRect(
         roundedRect,

@@ -24,8 +24,8 @@ class DeviceButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Positioned(
-        right: 20,
-        bottom: 50, // another padding
+        right: 24,
+        bottom: 48, // another padding
         child: Column(
           children: [
             if (showAdditionalButtons) ...[
@@ -59,7 +59,5 @@ class DeviceButtons extends StatelessWidget {
             ),
           ],
         ));
-    //                     if (_showInfo) ...[loadInfo()],
-    //                     if (_showDoc) ...[loadDoc()],
   }
 }
