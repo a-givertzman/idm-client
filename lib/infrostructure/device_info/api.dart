@@ -11,6 +11,6 @@ class Api {
   ///
   /// TODO: Type doc
   Future<Result<Map<String, dynamic>, Failure>> fetch(String id) async {
-    return Future.value(Ok({}));
+    return Future.value(const Ok({}));
   }
 }
