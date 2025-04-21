@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 ///
 /// Widget of control buttons for working with the device.
 class DeviceButtons extends StatelessWidget {
@@ -7,7 +6,7 @@ class DeviceButtons extends StatelessWidget {
   final VoidCallback onPlusPressed;
   final VoidCallback onInfoPressed;
   final VoidCallback onDocPressed;
-
+  final double defaultPadding;
   ///
   /// Creates a new instanse of [DeviceButtons] with [key], visibility flag [showAdditionalButtons],
   /// callback of pressing the main button [onPlusPressed], callback of pressing info button [onInfoPressed]
@@ -18,46 +17,46 @@ class DeviceButtons extends StatelessWidget {
     required this.onPlusPressed,
     required this.onInfoPressed,
     required this.onDocPressed,
+    this.defaultPadding = 24,
   });
   //
   //
   @override
   Widget build(BuildContext context) {
     return Positioned(
-        right: 24,
-        bottom: 48, // another padding
+        right: defaultPadding,
+        bottom: defaultPadding * 2,
         child: Column(
           children: [
             if (showAdditionalButtons) ...[
-              ElevatedButton(
-                onPressed: onInfoPressed,
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 102, 163, 210)),
-                child: const Icon(
-                  Icons.info,
-                  color: Color.fromARGB(255, 3, 62, 107),
-                ),
-              ),
-              ElevatedButton(
-                onPressed: onDocPressed,
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 102, 163, 210)),
-                child: const Icon(
-                  Icons.document_scanner,
-                  color: Color.fromARGB(255, 3, 62, 107),
-                ),
-              )
+              _buildButton(
+                  context: context, icon: Icons.info, onPressed: onInfoPressed),
+              _buildButton(
+                  context: context,
+                  icon: Icons.document_scanner,
+                  onPressed: onDocPressed),
             ],
-            ElevatedButton(
-              onPressed: onPlusPressed,
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 102, 163, 210)),
-              child: const Icon(
-                Icons.add_circle,
-                color: Color.fromARGB(255, 3, 62, 107),
-              ),
-            ),
+            _buildButton(
+                context: context,
+                icon: Icons.add_circle,
+                onPressed: onPlusPressed),
           ],
+        ));
+  }
+
+  //
+  //
+  Widget _buildButton(
+      {required BuildContext context,
+      required IconData icon,
+      required VoidCallback onPressed}) {
+    return ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+            backgroundColor: Theme.of(context).colorScheme.primaryContainer),
+        child: Icon(
+          icon,
+          color: Theme.of(context).colorScheme.onPrimaryContainer,
         ));
   }
 }

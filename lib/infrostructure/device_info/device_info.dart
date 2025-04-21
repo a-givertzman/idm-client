@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:hmi_core/hmi_core_result.dart';
 import 'package:idm_client/domain/error/failure.dart';
 import 'package:idm_client/infrostructure/device_info/api.dart';
-
 ///
 /// Provides basic overview info by device
 class DeviceInfo {
@@ -19,20 +18,19 @@ class DeviceInfo {
   String? depth;
   String? weight;
   Api? _remote;
-
   ///
   /// Creates a new instanse of [DeviceInfo] with fields:
-  /// - manufacturer
-  /// - vendor
-  /// - orderCode
-  /// - model
-  /// - serial
-  /// - name
-  /// - description
-  /// - width
-  /// - height
-  /// - depth
-  /// - weight
+  /// - [manufacturer]
+  /// - [vendor]
+  /// - [orderCode] - equipment order number
+  /// - [model]
+  /// - [serial] - equipment serial number
+  /// - [name] - equipment name
+  /// - [description] - detailed description of the equipment
+  /// - [width] - equipmets width
+  /// - [height] - equipment height
+  /// - [depth] -  equipment depth
+  /// - [weight] - equipment weight
   DeviceInfo({
     this.manufacturer,
     this.vendor,
