@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:idm_client/infrostructure/custom_theme.dart';
 import 'package:idm_client/presentation/home_page/home_page.dart';
 ///
 /// Application widget.
@@ -11,9 +12,7 @@ class AppWidget extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
+      theme: customTheme,
       home: const HomePage(),
     );
   }

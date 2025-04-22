@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:idm_client/domain/device.dart';
 import 'package:native_device_orientation/native_device_orientation.dart';
+import 'package:idm_client/infrostructure/custom_theme.dart';
 ///
 /// The base class for rendering devices on canvas.
 class DevicePainter extends CustomPainter {
   final Size _cameraSize;
   final List<Device> _devices;
   final NativeDeviceOrientation orientation;
+  final ThemeData customTheme;
   ///
   /// Creates a new instanse of [DevicePainter] with given [cameraResolution], list of [devices] and current [orientation].
   DevicePainter(
     Size cameraResolution,
     List<Device> devices,
     this.orientation,
+    this.customTheme,
   )   : _cameraSize = cameraResolution,
         _devices = devices;
   //
@@ -33,7 +36,6 @@ class DevicePainter extends CustomPainter {
         return Offset(x, y);
     }
   }
-
   //
   //
   @override
@@ -43,13 +45,13 @@ class DevicePainter extends CustomPainter {
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => true;
 }
-
 ///
 /// Drawing frames around detected devices.
 class DeviceFramePainter extends DevicePainter {
   ///
   /// Creates a new instanse of [DeviceFramePainter] with given [cameraResolution], list of [devices] and current [orientation].
-  DeviceFramePainter(super.cameraResolution, super.devices, super.orientation);
+  DeviceFramePainter(super.cameraResolution, super.devices, super.orientation,
+      super.customTheme);
   //
   //
   @override
@@ -74,7 +76,7 @@ class DeviceFramePainter extends DevicePainter {
           rect,
           Paint()
             ..style = PaintingStyle.stroke
-            ..color = const Color.fromARGB(255, 37, 86, 123)
+            ..color = customTheme.colorScheme.primaryContainer
             ..strokeWidth = 3.0);
     }
   }
@@ -84,8 +86,8 @@ class DeviceFramePainter extends DevicePainter {
 class DeviceBarPainter extends DevicePainter {
   ///
   /// Creates a new instanse of [DeviceBarPainter] with given [cameraResolution], list of [devices], current [orientation] and [text] of QR code.
-  DeviceBarPainter(
-      super.cameraResolution, super.devices, super.orientation, this.text);
+  DeviceBarPainter(super.cameraResolution, super.devices, super.orientation,
+      this.text, super.customTheme);
   String text;
   //
   //
@@ -107,30 +109,25 @@ class DeviceBarPainter extends DevicePainter {
       bottomLeft: const Radius.circular(borderRadius),
       bottomRight: const Radius.circular(borderRadius),
     );
-    const gradient = LinearGradient(
+    final gradient = LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
       colors: [
-        Color.fromARGB(255, 3, 62, 107), // Начальный цвет
-        Color.fromARGB(255, 37, 86, 123), // Конечный цвет
-        Color.fromARGB(2255, 3, 62, 107), // Дополнительный цвет
+        customTheme.colorScheme.primaryContainer,
+        customTheme.colorScheme.onPrimaryContainer,
+        customTheme.colorScheme.primaryContainer,
       ],
-      stops: [0.0, 0.5, 1.0],
+      stops: const [0.0, 0.5, 1.0],
     );
     canvas.drawRRect(
         roundedRect,
         Paint()
           ..shader = gradient.createShader(rect)
           ..style = PaintingStyle.fill);
-    const textStyle = TextStyle(
-      color: Color.fromARGB(255, 102, 163, 210),
-      fontSize: 16,
-      fontWeight: FontWeight.bold,
-    );
     final textPainter = TextPainter(
       text: TextSpan(
         text: text,
-        style: textStyle,
+        style: customTheme.textTheme.bodyMedium,
       ),
       textDirection: TextDirection.ltr,
       textAlign: TextAlign.center,

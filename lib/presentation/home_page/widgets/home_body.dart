@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:hmi_core/hmi_core_log.dart';
 import 'package:idm_client/domain/detect_device/detect_device.dart';
 import 'package:idm_client/domain/device.dart';
-//import 'package:idm_client/presentation/home_page/widgets/device_doc_widget.dart';
 import 'package:idm_client/presentation/home_page/widgets/device_info_widget.dart';
 import 'package:idm_client/presentation/home_page/widgets/device_painter.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:native_device_orientation/native_device_orientation.dart';
 import 'package:idm_client/presentation/home_page/widgets/device_buttons.dart';
-
 ///
 /// The main widget of the [HomePage] body that controls the scanning.
 class HomeBody extends StatefulWidget {
@@ -20,7 +18,6 @@ class HomeBody extends StatefulWidget {
   @override
   State<HomeBody> createState() => _HomeBodyState();
 }
-
 ///
 /// Status of the [HomeBody].
 class _HomeBodyState extends State<HomeBody> {
@@ -31,7 +28,6 @@ class _HomeBodyState extends State<HomeBody> {
   bool _showAdditionalButtons = false;
   bool _showInfo = false;
   bool _showDoc = false;
-
   ///
   /// Creation of [MobileScannerController] for working with the camera and scanning QR codes.
   final MobileScannerController _cameraController = MobileScannerController(
@@ -48,7 +44,6 @@ class _HomeBodyState extends State<HomeBody> {
   void initState() {
     super.initState();
   }
-
   ///
   /// Building a camera view based on device [orientation].
   /// Returns the rotated camera widget.
@@ -83,7 +78,6 @@ class _HomeBodyState extends State<HomeBody> {
       ),
     );
   }
-
   //
   //
   @override
@@ -104,9 +98,7 @@ class _HomeBodyState extends State<HomeBody> {
                     return const Center(
                         child: Stack(
                       children: [
-                        CircularProgressIndicator(
-                          color: Color.fromARGB(255, 102, 163, 210),
-                        ),
+                        CircularProgressIndicator(),
                       ],
                     ));
                   }
@@ -128,12 +120,14 @@ class _HomeBodyState extends State<HomeBody> {
                           painter: DeviceFramePainter(
                               _cameraController.value.size,
                               _devices.values.toList(),
-                              orientation),
+                              orientation,
+                              Theme.of(context)),
                           foregroundPainter: DeviceBarPainter(
                               _cameraController.value.size,
                               _devices.values.toList(),
                               orientation,
-                              _devices.values.first.id),
+                              _devices.values.first.id,
+                              Theme.of(context)),
                         ),
                       if (_lastDetectedDevice != null)
                         CustomPaint(
@@ -143,7 +137,8 @@ class _HomeBodyState extends State<HomeBody> {
                               _cameraController.value.size,
                               _devices.values.toList(),
                               orientation,
-                              _devices.values.first.id),
+                              _devices.values.first.id,
+                              Theme.of(context)),
                         ),
                       DeviceButtons(
                           showAdditionalButtons: _showAdditionalButtons,
@@ -165,7 +160,7 @@ class _HomeBodyState extends State<HomeBody> {
                           devId: _devices.values.first.id,
                           onClosePressed: () => setState(() {
                             _showInfo = false;
-                          }),
+                          }), 
                         )
                       ],
                       if (_showDoc) ...[
@@ -200,7 +195,6 @@ class _HomeBodyState extends State<HomeBody> {
       return !dev.isActual;
     });
   }
-
   //
   //
   @override
