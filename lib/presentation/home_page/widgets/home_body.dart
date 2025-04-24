@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:hmi_core/hmi_core_log.dart';
 import 'package:idm_client/domain/detect_device/detect_device.dart';
 import 'package:idm_client/domain/device.dart';
+import 'package:idm_client/infrostructure/device_doc/device_doc.dart';
 import 'package:idm_client/presentation/home_page/widgets/device_info_widget.dart';
 import 'package:idm_client/presentation/home_page/widgets/device_painter.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:native_device_orientation/native_device_orientation.dart';
 import 'package:idm_client/presentation/home_page/widgets/device_buttons.dart';
+
 ///
 /// The main widget of the [HomePage] body that controls the scanning.
 class HomeBody extends StatefulWidget {
@@ -18,6 +20,7 @@ class HomeBody extends StatefulWidget {
   @override
   State<HomeBody> createState() => _HomeBodyState();
 }
+
 ///
 /// Status of the [HomeBody].
 class _HomeBodyState extends State<HomeBody> {
@@ -28,6 +31,7 @@ class _HomeBodyState extends State<HomeBody> {
   bool _showAdditionalButtons = false;
   bool _showInfo = false;
   bool _showDoc = false;
+
   ///
   /// Creation of [MobileScannerController] for working with the camera and scanning QR codes.
   final MobileScannerController _cameraController = MobileScannerController(
@@ -44,6 +48,7 @@ class _HomeBodyState extends State<HomeBody> {
   void initState() {
     super.initState();
   }
+
   ///
   /// Building a camera view based on device [orientation].
   /// Returns the rotated camera widget.
@@ -78,6 +83,7 @@ class _HomeBodyState extends State<HomeBody> {
       ),
     );
   }
+
   //
   //
   @override
@@ -141,34 +147,30 @@ class _HomeBodyState extends State<HomeBody> {
                               Theme.of(context)),
                         ),
                       DeviceButtons(
-                          showAdditionalButtons: _showAdditionalButtons,
-                          onPlusPressed: () => setState(() {
-                                _showAdditionalButtons =
-                                    !_showAdditionalButtons;
-                              }),
-                          onInfoPressed: () => setState(() {
-                                _showInfo = !_showInfo;
-                                _showDoc = false;
-                              }),
-                          onDocPressed: () => setState(() {
-                                _showDoc = !_showDoc;
-                                _showInfo = false;
+                        showAdditionalButtons: _showAdditionalButtons,
+                        onPlusPressed: () => setState(() {
+                          _showAdditionalButtons = !_showAdditionalButtons;
                         }),
+                        onInfoPressed: () => setState(() {
+                          _showInfo = !_showInfo;
+                          _showDoc = false;
+                        }),
+                        onDocPressed: () {
+                          setState(() {
+                            _showDoc = !_showDoc;
+                            _showInfo = false;
+                          });
+                          final deviceId = _devices.values.first.id;
+                          DeviceDoc().openPdf(deviceId);
+                        },
                       ),
                       if (_showInfo && _devices.isNotEmpty) ...[
                         DeviceInfoWidget(
                           devId: _devices.values.first.id,
                           onClosePressed: () => setState(() {
                             _showInfo = false;
-                          }), 
+                          }),
                         )
-                      ],
-                      if (_showDoc) ...[
-                        // DeviceDocWidget(
-                        //   devId: _devices.values.first.id,
-                        //   //onClosePressed: onClosePressed
-                        // )
-                        //DocView()
                       ],
                     ],
                   );
@@ -178,6 +180,7 @@ class _HomeBodyState extends State<HomeBody> {
       );
     }));
   }
+
   ///
   /// Write barcode information into list of [Device]'s.
   void _updateDevices(AsyncSnapshot<Device?> snapshot) {
@@ -195,6 +198,7 @@ class _HomeBodyState extends State<HomeBody> {
       return !dev.isActual;
     });
   }
+
   //
   //
   @override
