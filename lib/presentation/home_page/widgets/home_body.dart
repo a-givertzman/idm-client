@@ -8,7 +8,6 @@ import 'package:idm_client/presentation/home_page/widgets/device_painter.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:native_device_orientation/native_device_orientation.dart';
 import 'package:idm_client/presentation/home_page/widgets/device_buttons.dart';
-
 ///
 /// The main widget of the [HomePage] body that controls the scanning.
 class HomeBody extends StatefulWidget {
@@ -20,7 +19,6 @@ class HomeBody extends StatefulWidget {
   @override
   State<HomeBody> createState() => _HomeBodyState();
 }
-
 ///
 /// Status of the [HomeBody].
 class _HomeBodyState extends State<HomeBody> {
@@ -29,9 +27,7 @@ class _HomeBodyState extends State<HomeBody> {
   // bool values for init state
   bool _showFrame = false;
   bool _showAdditionalButtons = false;
-  bool _showInfo = false;
-  bool _showDoc = false;
-
+  final Map<String, bool> _showInfoMap = {};
   ///
   /// Creation of [MobileScannerController] for working with the camera and scanning QR codes.
   final MobileScannerController _cameraController = MobileScannerController(
@@ -48,7 +44,6 @@ class _HomeBodyState extends State<HomeBody> {
   void initState() {
     super.initState();
   }
-
   ///
   /// Building a camera view based on device [orientation].
   /// Returns the rotated camera widget.
@@ -83,7 +78,6 @@ class _HomeBodyState extends State<HomeBody> {
       ),
     );
   }
-
   //
   //
   @override
@@ -125,53 +119,46 @@ class _HomeBodyState extends State<HomeBody> {
                               Size(constraints.maxWidth, constraints.maxHeight),
                           painter: DeviceFramePainter(
                               _cameraController.value.size,
-                              _devices.values.toList(),
+                              [_lastDetectedDevice!],
                               orientation,
                               Theme.of(context)),
                           foregroundPainter: DeviceBarPainter(
                               _cameraController.value.size,
-                              _devices.values.toList(),
+                              [_lastDetectedDevice!],
                               orientation,
-                              _devices.values.first.id,
+                              [_lastDetectedDevice!].first.id,
                               Theme.of(context)),
                         ),
                       if (_lastDetectedDevice != null)
                         CustomPaint(
                           size:
                               Size(constraints.maxWidth, constraints.maxHeight),
-                          painter: DeviceBarPainter(
-                              _cameraController.value.size,
-                              _devices.values.toList(),
-                              orientation,
-                              _devices.values.first.id,
-                              Theme.of(context)),
                         ),
                       DeviceButtons(
+                        devices: _devices,
                         showAdditionalButtons: _showAdditionalButtons,
                         onPlusPressed: () => setState(() {
                           _showAdditionalButtons = !_showAdditionalButtons;
                         }),
-                        onInfoPressed: () => setState(() {
-                          _showInfo = !_showInfo;
-                          _showDoc = false;
+                        onInfoPressed: (devId) => setState(() {
+                          _showInfoMap[devId] = true;
                         }),
-                        onDocPressed: () {
-                          setState(() {
-                            _showDoc = !_showDoc;
-                            _showInfo = false;
-                          });
-                          final deviceId = _devices.values.first.id;
-                          DeviceDoc().openPdf(deviceId);
+                        onDocPressed: (devId) {
+                          DeviceDoc().openPdf(devId);
                         },
                       ),
-                      if (_showInfo && _devices.isNotEmpty) ...[
-                        DeviceInfoWidget(
-                          devId: _devices.values.first.id,
-                          onClosePressed: () => setState(() {
-                            _showInfo = false;
-                          }),
-                        )
-                      ],
+                      ..._devices.entries.map((entry) {
+                        final devId = entry.key;
+                        if (_showInfoMap[devId] ?? false) {
+                          return DeviceInfoWidget(
+                            devId: devId,
+                            onClosePressed: () => setState(() {
+                              _showInfoMap[devId] = false;
+                            }),
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      }),
                     ],
                   );
                 });
@@ -180,7 +167,6 @@ class _HomeBodyState extends State<HomeBody> {
       );
     }));
   }
-
   ///
   /// Write barcode information into list of [Device]'s.
   void _updateDevices(AsyncSnapshot<Device?> snapshot) {
@@ -194,11 +180,7 @@ class _HomeBodyState extends State<HomeBody> {
       }
       _lastDetectedDevice = device;
     }
-    _devices.removeWhere((key, Device dev) {
-      return !dev.isActual;
-    });
   }
-
   //
   //
   @override
