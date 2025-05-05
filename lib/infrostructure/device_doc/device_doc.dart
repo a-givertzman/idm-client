@@ -6,14 +6,16 @@ import 'package:open_filex/open_filex.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 ///
-/// Provides documentation of device
+/// Provides documentation of device.
 class DeviceDoc {
   String? pdfPath;
   String? devId;
   final _log = const Log("DeviceDoc");
+  ///
+  /// Creates a new instanse of [DeviceDoc].
   DeviceDoc();
-  //
-  //
+  ///
+  /// Takes the pdf file corresponding to the device from assets and opens it in the available application on the running gadget.
   Future<void> openPdf(String id) async {
     try {
       String formattedId = id.replaceFirst('https://', 'https:/');
@@ -29,8 +31,8 @@ class DeviceDoc {
       _log.error('.openPdf | error: $e');
     }
   }
-  //
-  //
+  ///
+  /// Copies given asset file to the local directory.
   Future<Result<File, Failure>> _copyAssetToLocal(String? assetPath) async {
     final dir = await getTemporaryDirectory();
     final file = File('${dir.path}/${assetPath?.split('/').last}');
