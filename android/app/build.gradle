@@ -6,9 +6,9 @@ plugins {
 }
 
 android {
-    namespace = "com.example.idm_client"
-    compileSdk = flutter.compileSdkVersion
-
+    namespace "com.example.idm_client"
+    //compileSdk = flutter.compileSdkVersion
+    compileSdk = 35
     // added by Liza
     //ndkVersion = flutter.ndkVersion
     ndkVersion "25.1.8937393"
